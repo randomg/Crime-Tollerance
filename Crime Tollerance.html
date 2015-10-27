@@ -1339,15 +1339,27 @@ var latDegreeOffset = 39.92959;
 
 google.maps.event.addDomListener(window, 'load', initialize);
 </script>
+<script type="text/javascript">
+  function startResize() {
+	document.getElementById("starting").style.width = "300px";
+  }
+  function endResize() {
+	document.getElementById("ending").style.width = "300px";
+  }
+  function shrinkEverything() {
+	document.getElementById("starting").style.width = "100px";
+	document.getElementById("ending").style.width = "100px";
+  }
+</script>
 
 </head>
 
 <body>
 	<input id="startAddress" class="behind" type="text" disabled=disabled>
 	<input id="endAddress" class="behind" type="text" disabled=disabled>
-	<div id="map_canvas"></div>
-	<input id="starting" class="controls" type="text" placeholder="Start">
-	<input id="ending" class="controls" type="text" placeholder="End">
+	<div id="map_canvas" onclick="shrinkEverything()"></div>
+	<input id="starting" class="controls" type="text" placeholder="Start" oninput="startResize()">
+	<input id="ending" class="controls" type="text" placeholder="End" oninput="endResize()">
 	<input id="time" class="controls" type="text" placeholder="Hour">
 	<input id="go" class="controls" type="button" value="Go" onclick="calcRoute()">  
 	<div id="legend">
