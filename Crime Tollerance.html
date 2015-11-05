@@ -147,13 +147,6 @@ function initialize() {
 	map.addListener('bounds_changed', function() {
 	  startBox.setBounds(map.getBounds());
 	  endBox.setBounds(map.getBounds());
-		if(startActive) {
-		  document.getElementById("starting").select();
-	  } else if(endActive) {
-		  document.getElementById("ending").select();
-	  } else if(hourActive) {
-		  document.getElementById("time").select();
-	  }
 	});
 	
 	startBox.addListener('places_changed',function () {
@@ -171,23 +164,24 @@ function initialize() {
 
 function sizing(initial) {
 	var localWidth = (initial===true ? $(window).width() : initial.target.$(window).width());
-	if(savedWidth != localWidth || initial) {
-		savedWidth = localWidth;
+	if(localWidth<changeWidth && !mobile || initial) {
 		for(var i=0,ii=map.controls[google.maps.ControlPosition.TOP_LEFT].length;i<ii;i++) {map.controls[google.maps.ControlPosition.TOP_LEFT].pop();}
 		for(var i=1,ii=map.controls[google.maps.ControlPosition.LEFT_TOP].length;i<ii;i++) {map.controls[google.maps.ControlPosition.LEFT_TOP].pop();}
-		if(localWidth<changeWidth) {
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(input);
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(output);
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(time);
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(go);
-		} else {
-			map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-			map.controls[google.maps.ControlPosition.TOP_LEFT].push(output);
-			map.controls[google.maps.ControlPosition.TOP_LEFT].push(time);
-			map.controls[google.maps.ControlPosition.TOP_LEFT].push(go);
-			document.getElementById("starting").style.width = "300px";
-			document.getElementById("ending").style.width = "300px";
-		}
+		mobile = true;
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(input);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(output);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(time);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(go);
+	} else if (mobile || initial) {
+		for(var i=0,ii=map.controls[google.maps.ControlPosition.TOP_LEFT].length;i<ii;i++) {map.controls[google.maps.ControlPosition.TOP_LEFT].pop();}
+		for(var i=1,ii=map.controls[google.maps.ControlPosition.LEFT_TOP].length;i<ii;i++) {map.controls[google.maps.ControlPosition.LEFT_TOP].pop();}
+		mobile = false;
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(output);
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(time);
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(go);
+		document.getElementById("starting").style.width = "300px";
+		document.getElementById("ending").style.width = "300px";
 	}
 }
 
@@ -1334,6 +1328,7 @@ var currentDate = new Date();
 /** Screen width that moves fields to left */var changeWidth = 900;
 var input,output,time,go;
 var startActive = false, endActive = false, hourActive = false;
+var mobile;
  
  var lngMeterOffset = 8366943;
  var latMeterOffset = 4855716;
@@ -1345,27 +1340,7 @@ var startActive = false, endActive = false, hourActive = false;
 google.maps.event.addDomListener(window, 'load', initialize);
 </script>
 
-<script type="text/javascript">
-  function start() {
-	  startActive = true;
-	  endActive = false;
-	  hourActive = false;
-	  increase();
-  }
-  
-  function end() {
-	  endActive = true;
-	  startActive = false;
-	  hourActive = false;
-	  increase();
-  }
-  
-  function hour() {
-	  hourActive = true;
-	  startActive = false;
-	  endActive = false;
-  }
-  
+<script type="text/javascript">  
   function increase() {
 	if(document.getElementById("starting").style.width != "300px") {
 	  document.getElementById("starting").style.width = "300px";
@@ -1380,9 +1355,9 @@ google.maps.event.addDomListener(window, 'load', initialize);
 	<input id="startAddress" class="behind" type="text" disabled=disabled>
 	<input id="endAddress" class="behind" type="text" disabled=disabled>
 	<div id="map_canvas"></div>
-	<input id="starting" class="controls" type="text" placeholder="Start" onclick="start()">
-	<input id="ending" class="controls" type="text" placeholder="End" onclick="end()">
-	<input id="time" class="controls" type="text" placeholder="Hour" onclick="hour()">
+	<input id="starting" class="controls" type="text" placeholder="Start" onclick="increase()">
+	<input id="ending" class="controls" type="text" placeholder="End" onclick="increase()">
+	<input id="time" class="controls" type="text" placeholder="Hour">
 	<input id="go" class="controls" type="button" value="Go" onclick="calcRoute()">  
 	<div id="legend">
 		<div class="top">
