@@ -164,7 +164,7 @@ function initialize() {
 
 function sizing(initial) {
 	var localWidth = (initial===true ? $(window).width() : initial.target.$(window).width());
-	if(savedWidth != localWidth) {
+	if(savedWidth != localWidth || initial) {
 		savedWidth = localWidth;
 		for(var i=0,ii=map.controls[google.maps.ControlPosition.TOP_LEFT].length;i<ii;i++) {map.controls[google.maps.ControlPosition.TOP_LEFT].pop();}
 		for(var i=1,ii=map.controls[google.maps.ControlPosition.LEFT_TOP].length;i<ii;i++) {map.controls[google.maps.ControlPosition.LEFT_TOP].pop();}
