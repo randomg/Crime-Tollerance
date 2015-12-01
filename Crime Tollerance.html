@@ -81,6 +81,17 @@ body {
   width: 42px;
 }
 
+#locate {
+  background-color: #fff;
+  font-family: Roboto;
+  font-size: 15px;
+  font-weight: 300;
+  margin-left: 12px;
+  padding: 0 11px 0 10px;
+  text-overflow: ellipsis;
+  width: 90px;
+}
+
 #legend {
   background-color: #ffffff;
   margin-left: 10px;
@@ -110,12 +121,8 @@ body {
 }
 
 </style>
-<!-- <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
-<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> -->
 <script src="http://code.jquery.com/jquery-latest.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
-<!--  <script src="https://maps.googleapis.com/maps/api/js?libraries=places&callback=initialize" async defer></script> -->
 <script type="text/javascript">
 //if two routes are equally good/bad (end is diagnonal), follow road less traveled until crime is found and compare
 
@@ -142,22 +149,22 @@ function initialize() {
 	endBox = new google.maps.places.SearchBox(output);
 	
 	map.controls[google.maps.ControlPosition.LEFT_TOP].push(document.getElementById('legend'));
-	map.controls[google.maps.ControlPosition.LEFT_TOP].push(document.getElementById('locate'));
+	map.controls[google.maps.ControlPosition.LEFT_TOP].push(locate);
 	sizing(true);
 	
 	// Bias the SearchBox results towards current map's viewport.
-	map.addListener('bounds_changed', function() {
+	map.addListener('bounds_changed',function() {
 	  startBox.setBounds(map.getBounds());
 	  endBox.setBounds(map.getBounds());
 	});
 	
 	startBox.addListener('places_changed',function () {
 		var places = startBox.getPlaces();
-		if(places.length>0) {document.getElementById('startAddress').value = places[0].formatted_address;}
+		if(places.length>0) {input.value = places[0].formatted_address;}
 	});
 	endBox.addListener('places_changed',function () {
 		var places = endBox.getPlaces();
-		if(places.length>0) {document.getElementById('endAddress').value = places[0].formatted_address;}
+		if(places.length>0) {output.value = places[0].formatted_address;}
 	});
 	
 	$( window ).resize(sizing);
@@ -168,7 +175,7 @@ function sizing(initial) {
 	var localWidth = $(window).width();
 	if(localWidth<changeWidth && (!mobile || initial===true)) {
 		for(var i=0,ii=map.controls[google.maps.ControlPosition.TOP_LEFT].length;i<ii;i++) {map.controls[google.maps.ControlPosition.TOP_LEFT].pop();}
-		for(var i=1,ii=map.controls[google.maps.ControlPosition.LEFT_TOP].length;i<ii;i++) {map.controls[google.maps.ControlPosition.LEFT_TOP].pop();}
+		for(var i=2,ii=map.controls[google.maps.ControlPosition.LEFT_TOP].length;i<ii;i++) {map.controls[google.maps.ControlPosition.LEFT_TOP].pop();}
 		mobile = true;
 		map.controls[google.maps.ControlPosition.LEFT_TOP].push(input);
 		map.controls[google.maps.ControlPosition.LEFT_TOP].push(output);
@@ -182,8 +189,8 @@ function sizing(initial) {
 		map.controls[google.maps.ControlPosition.TOP_LEFT].push(output);
 		map.controls[google.maps.ControlPosition.TOP_LEFT].push(time);
 		map.controls[google.maps.ControlPosition.TOP_LEFT].push(go);
-		document.getElementById("starting").style.width = "300px";
-		document.getElementById("ending").style.width = "300px";
+		input.style.width = "300px";
+		output.style.width = "300px";
 	}
 }
 
@@ -200,13 +207,13 @@ function calcRoute() {
 	}
 	
 	var startText = (startPlaces && startPlaces.length>0) ? startPlaces[0].formatted_address : input.value;
-	if(startText === "") {
+	if(startText==="") {
 		input.value = "Missing";
 		input.style.color = "red";
 	}
 	
 	var endText = (endPlaces && endPlaces.length>0) ? endPlaces[0].formatted_address : output.value;
-	if(endText === "") {
+	if(endText==="") {
 		output.value = "Missing";
 		output.style.color = "red";
 	}
@@ -231,7 +238,7 @@ function calcRoute() {
 					directionsService.route(request,function(response,status) {
 						if(status==google.maps.DirectionsStatus.OK) {
 							directionCalls++;
-							if(!isInPhilly(response.routes[0].overview_path[0],input) || !isInPhilly(response.routes[0].overview_path[response.routes[0].overview_path.length-1]),output) {return false;}
+							if(!isInPhilly(response.routes[0].overview_path[0],input) || !isInPhilly(response.routes[0].overview_path[response.routes[0].overview_path.length-1],output)) {return false;}
 							end = response.routes[0].overview_path[response.routes[0].overview_path.length-1];
 							
 							// put bounds a little wider than route where crimes will be searched
@@ -1275,7 +1282,7 @@ function formatTime(timeToCheck) {
 }
 
 /** Is latLng in Philly? */
-function isInPhilly(latLngToCheck, startEnd) {
+function isInPhilly(latLngToCheck,startEnd) {
 	var lngToCheck = latLngToCheck.lng(), latToCheck = latLngToCheck.lat();
 	if(lngToCheck > -74.5 || lngToCheck < -75.5 || latToCheck > 40.5 || latToCheck < 39.5) {
 		startEnd.value = "Not in Philly";
@@ -1395,22 +1402,22 @@ google.maps.event.addDomListener(window, 'load', initialize);
 <script type="text/javascript">  
   function increase() {
 	var input = document.getElementById("starting"), output = document.getElementById("ending"), time = document.getElementById("time");
-	if(input.style.width != "300px") {
+	if(input.style.width!="300px") {
 	  input.style.width = "300px";
 	  output.style.width = "300px";
 	}
-	if(input.style.color != "initial") {input.style.color = "initial";}
-	if(output.style.color != "initial") {output.style.color = "initial";}
-	if(time.style.color != "initial") {time.style.color = "initial";}
-	if(input.value == "Not in Philly" || input.value == "Cannot find address") {input.value = "";}
-	if(output.value == "Not in Philly" || output.value == "Cannot find address") {output.value = "";}
-	if(time.value == "?") {output.value = "";}
+	if(input.style.color!="initial") {input.style.color = "initial";}
+	if(output.style.color!="initial") {output.style.color = "initial";}
+	if(time.style.color!="initial") {time.style.color = "initial";}
+	if(input.value=="Not in Philly" || input.value=="Cannot find address" || input.value=="Missing") {input.value = "";}
+	if(output.value=="Not in Philly" || output.value=="Cannot find address" || input.value=="Missing") {output.value = "";}
+	if(time.value=="?") {time.value = "";}
   }
 	
   function getCurrentLocation() {
 	if(navigator.geolocation) {
 	  navigator.geolocation.getCurrentPosition(function(position) {
-		document.getElementById("starting").value = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+		input.value = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
 	  });
 	}
   }
@@ -1419,13 +1426,12 @@ google.maps.event.addDomListener(window, 'load', initialize);
 </head>
 
 <body>
-	<input id="startAddress" class="behind" type="text" disabled=disabled>
-	<input id="endAddress" class="behind" type="text" disabled=disabled>
 	<div id="map_canvas"></div>
 	<input id="starting" class="controls" type="text" placeholder="Start" onclick="increase()">
 	<input id="ending" class="controls" type="text" placeholder="End" onclick="increase()">
-	<input id="time" class="controls" type="text" placeholder="Time">
+	<input id="time" class="controls" type="text" placeholder="Time" onclick="increase()">
 	<input id="go" class="controls" type="button" value="Go" onclick="calcRoute()">
+	<input id="locate" class="controls" type="button" value="Locate Me" onclick="getCurrentLocation()">
 	<div id="legend">
 		<div class="top">
 			<div class="text" id="1">
