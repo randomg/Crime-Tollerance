@@ -136,11 +136,13 @@ function initialize() {
 	output = document.getElementById('ending');
 	time = document.getElementById('time');
 	go = document.getElementById('go');
+	locate = document.getElementById('locate');
 	
 	startBox = new google.maps.places.SearchBox(input);
 	endBox = new google.maps.places.SearchBox(output);
 	
 	map.controls[google.maps.ControlPosition.LEFT_TOP].push(document.getElementById('legend'));
+	map.controls[google.maps.ControlPosition.LEFT_TOP].push(document.getElementById('locate'));
 	sizing(true);
 	
 	// Bias the SearchBox results towards current map's viewport.
@@ -174,7 +176,7 @@ function sizing(initial) {
 		map.controls[google.maps.ControlPosition.LEFT_TOP].push(go);
 	} else if (localWidth>=changeWidth && (mobile || initial===true)) {
 		for(var i=0,ii=map.controls[google.maps.ControlPosition.TOP_LEFT].length;i<ii;i++) {map.controls[google.maps.ControlPosition.TOP_LEFT].pop();}
-		for(var i=1,ii=map.controls[google.maps.ControlPosition.LEFT_TOP].length;i<ii;i++) {map.controls[google.maps.ControlPosition.LEFT_TOP].pop();}
+		for(var i=2,ii=map.controls[google.maps.ControlPosition.LEFT_TOP].length;i<ii;i++) {map.controls[google.maps.ControlPosition.LEFT_TOP].pop();}
 		mobile = false;
 		map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 		map.controls[google.maps.ControlPosition.TOP_LEFT].push(output);
@@ -190,18 +192,27 @@ function sizing(initial) {
  * queries and then places crimes, then calls showSteps to check route
  */
 function calcRoute() {
-	startActive = false;
-	endActive = false;
-	hourActive = false;
+	var startPlaces = startBox.getPlaces();
+	var endPlaces = endBox.getPlaces();
 	if($(window).width()<900) {
-		document.getElementById("starting").style.width = "100px";
-		document.getElementById("ending").style.width = "100px";
+		input.style.width = "100px";
+		output.style.width = "100px";
 	}
-	var startText = document.getElementById('startAddress').value;
-	var endText = document.getElementById('endAddress').value;
-	var time = formatTime(document.getElementById('time').value);
 	
-	if(time=='Invalid time format') {return;}
+	var startText = (startPlaces && startPlaces.length>0) ? startPlaces[0].formatted_address : input.value;
+	if(startText === "") {
+		input.value = "Missing";
+		input.style.color = "red";
+	}
+	
+	var endText = (endPlaces && endPlaces.length>0) ? endPlaces[0].formatted_address : output.value;
+	if(endText === "") {
+		output.value = "Missing";
+		output.style.color = "red";
+	}
+	
+	var formattedTime = formatTime(time.value);
+	if(formattedTime===null) {return;}
 	
 	clearer();
 	
@@ -220,7 +231,7 @@ function calcRoute() {
 					directionsService.route(request,function(response,status) {
 						if(status==google.maps.DirectionsStatus.OK) {
 							directionCalls++;
-							if(!isInPhilly(response.routes[0].overview_path[0]) || !isInPhilly(response.routes[0].overview_path[response.routes[0].overview_path.length-1])) {return false;}
+							if(!isInPhilly(response.routes[0].overview_path[0],input) || !isInPhilly(response.routes[0].overview_path[response.routes[0].overview_path.length-1]),output) {return false;}
 							end = response.routes[0].overview_path[response.routes[0].overview_path.length-1];
 							
 							// put bounds a little wider than route where crimes will be searched
@@ -249,7 +260,7 @@ function calcRoute() {
 							}
 							// call philly website for crimes, save them, and put them on the map
 							var totalData = 0, circleCounter = 0, ucrCounter = 0;
-							var numTime = Number(time);
+							var numTime = Number(formattedTime);
 							var adjustedTime = "(DISPATCH_TIME%20LIKE%20%27" + ((numTime+23)%24 < 10 ? "0" + (numTime+23)%24 : (numTime+23)%24) + "%25%27+OR+";
 							adjustedTime = adjustedTime + "DISPATCH_TIME%20LIKE%20%27" + (numTime%24 < 10 ? "0" + numTime%24 : numTime%24) + "%25%27+OR+";
 							adjustedTime = adjustedTime + "DISPATCH_TIME%20LIKE%20%27" + ((numTime+1)%24 < 10 ? "0" + (numTime+1)%24 : (numTime+1)%24) + "%25%27)";
@@ -272,8 +283,14 @@ function calcRoute() {
 							}
 						}
 					});
+				} else {
+					output.value = "Cannot find address";
+					output.style.color = "red";
 				}
 			});
+		} else {
+			input.value = "Cannot find address";
+			input.style.color = "red";
 		}
 	});
 }
@@ -1215,8 +1232,8 @@ function clearOverlays() {
 }
 
 /** handles different time formats */
-function formatTime(time) {
-	var noPunct = time.replace(/\W+/g, "")
+function formatTime(timeToCheck) {
+	var noPunct = timeToCheck.replace(/\W+/g, "")
 	var number = /^\d+/.exec(noPunct);
 	var words = /\D+/.exec(noPunct);
 	if(number) {
@@ -1252,13 +1269,17 @@ function formatTime(time) {
 			}
 		}
 	}
-	return 'Invalid time format';
+	time.value = "?";
+	time.style.color = "red";
+	return null;
 }
 
 /** Is latLng in Philly? */
-function isInPhilly(latLngToCheck) {
+function isInPhilly(latLngToCheck, startEnd) {
 	var lngToCheck = latLngToCheck.lng(), latToCheck = latLngToCheck.lat();
 	if(lngToCheck > -74.5 || lngToCheck < -75.5 || latToCheck > 40.5 || latToCheck < 39.5) {
+		startEnd.value = "Not in Philly";
+		startEnd.style.color = "red";
 		return false;
 	}
 	return true;
@@ -1358,7 +1379,7 @@ var currentDate = new Date();
 /** Search box for starting place */var startBox;
 /** Search box for ending place */var endBox;
 /** Screen width that moves fields to left */var changeWidth = 900;
-var input,output,time,go;
+var input,output,time,go,locate;
 var mobile;
  
  var lngMeterOffset = 8366943;
@@ -1373,9 +1394,24 @@ google.maps.event.addDomListener(window, 'load', initialize);
 
 <script type="text/javascript">  
   function increase() {
-	if(document.getElementById("starting").style.width != "300px") {
-	  document.getElementById("starting").style.width = "300px";
-	  document.getElementById("ending").style.width = "300px";
+	var input = document.getElementById("starting"), output = document.getElementById("ending"), time = document.getElementById("time");
+	if(input.style.width != "300px") {
+	  input.style.width = "300px";
+	  output.style.width = "300px";
+	}
+	if(input.style.color != "initial") {input.style.color = "initial";}
+	if(output.style.color != "initial") {output.style.color = "initial";}
+	if(time.style.color != "initial") {time.style.color = "initial";}
+	if(input.value == "Not in Philly" || input.value == "Cannot find address") {input.value = "";}
+	if(output.value == "Not in Philly" || output.value == "Cannot find address") {output.value = "";}
+	if(time.value == "?") {output.value = "";}
+  }
+	
+  function getCurrentLocation() {
+	if(navigator.geolocation) {
+	  navigator.geolocation.getCurrentPosition(function(position) {
+		document.getElementById("starting").value = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+	  });
 	}
   }
 </script>
