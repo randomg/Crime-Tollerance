@@ -165,10 +165,24 @@ function initialize() {
 	endBox.addListener('places_changed',function () {
 		var places = endBox.getPlaces();
 		if(places.length>0) {output.value = places[0].formatted_address;}
+		endMarker.setMap(null);
+		endMarker = null;
 	});
 	
 	$( window ).resize(sizing);
-
+	
+	var downDate;
+	
+	map.addListener('mousedown',function() {downDate = new Date();});
+	map.addListener('click', function(e) {
+		if(downDate && new Date() - downDate > 500) {
+			output.value = e.latLng;
+			endMarker = new google.maps.Marker({
+				position: e.latLng,
+				map: map
+		    });
+		}
+	});
 }
 
 function sizing(initial) {
@@ -237,6 +251,10 @@ function calcRoute() {
 					};
 					directionsService.route(request,function(response,status) {
 						if(status==google.maps.DirectionsStatus.OK) {
+							if(endMarker) {
+								endMarker.setMap(null);
+								endMarker = null;
+							}
 							directionCalls++;
 							if(!isInPhilly(response.routes[0].overview_path[0],input) || !isInPhilly(response.routes[0].overview_path[response.routes[0].overview_path.length-1],output)) {return false;}
 							end = response.routes[0].overview_path[response.routes[0].overview_path.length-1];
@@ -1386,6 +1404,7 @@ var currentDate = new Date();
 /** Search box for starting place */var startBox;
 /** Search box for ending place */var endBox;
 /** Screen width that moves fields to left */var changeWidth = 900;
+/** User clicked destination */var endMarker;
 var input,output,time,go,locate;
 var mobile;
  
@@ -1401,7 +1420,6 @@ google.maps.event.addDomListener(window, 'load', initialize);
 
 <script type="text/javascript">  
   function increase() {
-	var input = document.getElementById("starting"), output = document.getElementById("ending"), time = document.getElementById("time");
 	if(input.style.width!="300px") {
 	  input.style.width = "300px";
 	  output.style.width = "300px";
@@ -1418,9 +1436,10 @@ google.maps.event.addDomListener(window, 'load', initialize);
 	if(navigator.geolocation) {
 	  navigator.geolocation.getCurrentPosition(function(position) {
 		input.value = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+		input.style.color = "initial";
 	  });
 	}
-  }
+  }  
 </script>
 
 </head>
