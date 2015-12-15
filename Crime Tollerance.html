@@ -699,7 +699,7 @@ function callNewRoute(doBackup,index,counter,routeSlope,savedBoxLength,i){
 			console.log("called too many");
 		}else if(status==google.maps.DirectionsStatus.OVER_QUERY_LIMIT){
 			console.log("calling too fast");
-			window.setTimeout(callNewRoute(doBackup,index,counter,routeSlope,savedBoxLength,i),500);
+			window.setTimeout(function() {callNewRoute(doBackup,index,counter,routeSlope,savedBoxLength,i);},1000);
 		}else{
 			console.log("bad directions");
 			if(!doBackup){
