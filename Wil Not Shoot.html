@@ -9202,6 +9202,10 @@ function initialize() {
 	map.addListener('click', function(e) {
 		if (downDate && new Date() - downDate > 500) {
 			output.value = e.latLng;
+			output.value = output.value.substring( 1, output.value.length - 1 );
+			if (endMarker) {
+				endMarker.setMap(null);
+			}
 			endMarker = new google.maps.Marker({
 				position: e.latLng, 
 				map: map
@@ -11125,6 +11129,7 @@ google.maps.event.addDomListener(window, 'load', initialize);
 	if (navigator.geolocation) {
 	  navigator.geolocation.getCurrentPosition(function(position) {
 		input.value = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+		input.value = input.value.substring( 1, input.value.length - 1 );
 		input.style.color = "initial";
 	  });
 	}
