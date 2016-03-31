@@ -37,6 +37,16 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
+#controlsOk {
+  border: 1px solid transparent;
+  border-radius: 2px 0 0 2px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  height: 32px;
+  outline: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
 #starting {
   background-color: #fff;
   font-family: Roboto;
@@ -114,6 +124,17 @@ body {
   width: 90px;
 }
 
+#reroute {
+  background-color: #fff;
+  font-family: Roboto;
+  font-size: 15px;
+  font-weight: 300;
+  margin-left: 12px;
+  padding: 0 11px 0 10px;
+  text-overflow: ellipsis;
+  width: 90px;
+}
+
 #legend {
   background-color: #ffffff;
   margin-left: 10px;
@@ -125,7 +146,33 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
+#help-form {
+  background-color: #fff;
+  border: 1px solid transparent;
+  border-radius: 2px 0 0 2px;
+  height: 400px;
+  margin-right: 12px;
+  padding: 0 11px 0 10px;
+  width: 800px;
+}
 
+#accordion {
+  font-family: Roboto;
+  font-size: 15px;
+  font-weight: 300;
+  height: 400px;
+}
+
+#help {
+  background-color: #fff;
+  font-family: Roboto;
+  font-size: 15px;
+  font-weight: 300;
+  margin-right: 12px;
+  padding: 0 5px 0 5px;
+  text-overflow: ellipsis;
+  width: 20px;
+}
 
 #ending:focus {
   border-color: #4d90fe;
@@ -141,10 +188,12 @@ body {
   font-size: 13px;
   font-weight: 300;
 }
-
 </style>
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 <script src="http://code.jquery.com/jquery-latest.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>
+<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 <script type="text/javascript">
 var hourShootings = [];
 
@@ -9141,7 +9190,7 @@ hourShootings.push({
 	]
 });
 
-function initialize() {
+function initialize(){
 	geocoder = new google.maps.Geocoder();
 	var wilmington = new google.maps.LatLng(39.742305, -75.544591);
 	var mapOptions = {
@@ -9159,34 +9208,42 @@ function initialize() {
 	locate = document.getElementById('locate');
 	dirType = document.getElementById('dirType');
 	gMaps = document.getElementById('gMaps');
+	helpForm = document.getElementById('help-form');
+	accordion = document.getElementById('accordion');
+	controlsOk = document.getElementById('controlsOk');
+	reroute = document.getElementById('reroute');
 	
 	startBox = new google.maps.places.SearchBox(input);
 	endBox = new google.maps.places.SearchBox(output);
 	
+	map.controls[google.maps.ControlPosition.TOP_RIGHT].push( document.getElementById('help') );
+	
 	map.controls[google.maps.ControlPosition.LEFT_TOP].push( document.getElementById('legend') );
 	map.controls[google.maps.ControlPosition.LEFT_TOP].push(locate);
 	map.controls[google.maps.ControlPosition.LEFT_TOP].push(dirType);
+	map.controls[google.maps.ControlPosition.LEFT_TOP].push(reroute);
 	map.controls[google.maps.ControlPosition.LEFT_TOP].push(gMaps);
+	
 	sizing(true);
 	
 	// Bias the SearchBox results towards current map's viewport.
-	map.addListener('bounds_changed', function() {
+	map.addListener('bounds_changed', function(){
 	  startBox.setBounds( map.getBounds() );
 	  endBox.setBounds( map.getBounds() );
 	});
 	
-	startBox.addListener('places_changed', function() {
+	startBox.addListener('places_changed', function(){
 		var places = startBox.getPlaces();
-		if (places.length > 0) {
+		if( places.length > 0 ){
 			input.value = places[0].formatted_address;
 		}
 	});
-	endBox.addListener('places_changed',function () {
+	endBox.addListener('places_changed',function (){
 		var places = endBox.getPlaces();
-		if (places.length > 0) {
+		if( places.length > 0 ){
 			output.value = places[0].formatted_address;
 		}
-		if (endMarker) {
+		if( endMarker ){
 			endMarker.setMap(null);
 			endMarker = null;
 		}
@@ -9196,14 +9253,14 @@ function initialize() {
 	
 	var downDate;
 	
-	map.addListener('mousedown', function() {
+	map.addListener('mousedown', function(){
 		downDate = new Date();
 	});
-	map.addListener('click', function(e) {
-		if (downDate && new Date() - downDate > 500) {
+	map.addListener('click', function(e){
+		if( downDate && new Date() - downDate > 500 ){
 			output.value = e.latLng;
 			output.value = output.value.substring( 1, output.value.length - 1 );
-			if (endMarker) {
+			if( endMarker ){
 				endMarker.setMap(null);
 			}
 			endMarker = new google.maps.Marker({
@@ -9212,38 +9269,38 @@ function initialize() {
 			});
 		}
 	});
-	
+
 	travelMode = ( driving ? google.maps.TravelMode.DRIVING : google.maps.TravelMode.WALKING ); 
 }
 
 /** Puts google controls in the right place depending on screen size */
-function sizing(initial) {
+function sizing(initial){
 	var localWidth = $(window).width();
 	var localHeight = $(window).height();
 	var heightChanged = false, widthChanged = false;
-	if ( localHeight < changeHeight && !mobileHeight ) {
+	if( localHeight < changeHeight && !mobileHeight ){
 		mobileHeight = true;
 		heightChanged = true;
 	}
-	else if (localHeight >= changeHeight && mobileHeight) {
+	else if( localHeight >= changeHeight && mobileHeight ){
 		mobileHeight = false;
 		heightChanged = true;
 	}
-	if ( localWidth < changeWidth && !mobileWidth ) {
+	if( localWidth < changeWidth && !mobileWidth ){
 		mobileWidth = true;
 		widthChanged = true;
 	}
-	else if (localWidth >= changeWidth && mobileWidth) {
+	else if( localWidth >= changeWidth && mobileWidth ){
 		mobileWidth = false;
 		widthChanged = true;
 	}
-	
-	if (mobileHeight) {
-		if (heightChanged || initial === true) {
-			for (var i = 0, ii = map.controls[google.maps.ControlPosition.TOP_LEFT].length; i < ii; i++) { 
+
+	if( mobileHeight ){
+		if( heightChanged || initial === true ){
+			for( var i = 0, ii = map.controls[google.maps.ControlPosition.TOP_LEFT].length; i < ii; i++ ){ 
 				map.controls[google.maps.ControlPosition.TOP_LEFT].pop();
 			}
-			for (var i = 1, ii = map.controls[google.maps.ControlPosition.LEFT_TOP].length; i < ii; i++) {
+			for( var i = 1, ii = map.controls[google.maps.ControlPosition.LEFT_TOP].length; i < ii; i++ ){
 				map.controls[google.maps.ControlPosition.LEFT_TOP].pop();
 			}
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(input);
@@ -9252,74 +9309,86 @@ function sizing(initial) {
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(go);
 			map.controls[google.maps.ControlPosition.TOP_LEFT].push(locate);
 			map.controls[google.maps.ControlPosition.TOP_LEFT].push(dirType);
+			map.controls[google.maps.ControlPosition.TOP_LEFT].push(reroute);
 			map.controls[google.maps.ControlPosition.TOP_LEFT].push(gMaps);
+			
 		}
 	}
-	else {
-		if ( mobileWidth && (heightChanged || widthChanged || initial === true) ) {
-			for (var i = 0, ii = map.controls[google.maps.ControlPosition.TOP_LEFT].length; i < ii; i++) { 
-				map.controls[google.maps.ControlPosition.TOP_LEFT].pop();
-			}
-			for (var i = 1, ii = map.controls[google.maps.ControlPosition.LEFT_TOP].length; i < ii; i++) {
-				map.controls[google.maps.ControlPosition.LEFT_TOP].pop();
-			}
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(locate);
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(dirType);
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(gMaps);
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(input);
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(output);
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(time);
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(go);
+	else if( mobileWidth && (heightChanged || widthChanged || initial === true) ){
+		for( var i = 0, ii = map.controls[google.maps.ControlPosition.TOP_LEFT].length; i < ii; i++ ){ 
+			map.controls[google.maps.ControlPosition.TOP_LEFT].pop();
 		}
-		else if ( !mobileWidth && (heightChanged || widthChanged || initial === true) ) {
-			for (var i = 0, ii = map.controls[google.maps.ControlPosition.TOP_LEFT].length; i < ii; i++) {
-				map.controls[google.maps.ControlPosition.TOP_LEFT].pop();
-			}
-			for (var i = 1, ii = map.controls[google.maps.ControlPosition.LEFT_TOP].length; i < ii; i++) {
-				map.controls[google.maps.ControlPosition.LEFT_TOP].pop();
-			}
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(locate);
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(dirType);
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(gMaps);
-			map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-			map.controls[google.maps.ControlPosition.TOP_LEFT].push(output);
-			map.controls[google.maps.ControlPosition.TOP_LEFT].push(time);
-			map.controls[google.maps.ControlPosition.TOP_LEFT].push(go);
-			input.style.width = "300px";
-			output.style.width = "300px";
+		for( var i = 1, ii = map.controls[google.maps.ControlPosition.LEFT_TOP].length; i < ii; i++ ){
+			map.controls[google.maps.ControlPosition.LEFT_TOP].pop();
 		}
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(locate);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(dirType);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(reroute);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(gMaps);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(input);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(output);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(time);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(go);
 	}
+	else if( !mobileWidth && (heightChanged || widthChanged || initial === true) ){
+		for( var i = 0, ii = map.controls[google.maps.ControlPosition.TOP_LEFT].length; i < ii; i++ ){
+			map.controls[google.maps.ControlPosition.TOP_LEFT].pop();
+		}
+		for( var i = 1, ii = map.controls[google.maps.ControlPosition.LEFT_TOP].length; i < ii; i++ ){
+			map.controls[google.maps.ControlPosition.LEFT_TOP].pop();
+		}
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(locate);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(dirType);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(reroute);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(gMaps);
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(output);
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(time);
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(go);
+		input.style.width = "300px";
+		output.style.width = "300px";
+	}
+	map.controls[google.maps.ControlPosition.RIGHT_CENTER].pop();
+	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push( helpForm );
+	var testWidth = localWidth * .8, testHeight = localHeight * .8;
+	helpForm.style.width = ( testWidth > helpWidth ? helpWidth : testWidth ) + 'px';
+	helpForm.style.height = ( testHeight > helpHeight ? helpHeight : testHeight ) + 'px';
+	helpForm.style.marginRight = ( localWidth - ( testWidth > helpWidth ? helpWidth : testWidth ) ) / 2 + 'px';
+	accordion.style.height = helpForm.style.height;
+	$( "#accordion" ).accordion( "refresh");
+	controlsOk.style.marginLeft = ( testWidth > helpWidth ? helpWidth : testWidth ) - 23 + 'px';
 }
 
 /**
  * Starts map in Wilmington, calls directionService with route
  * queries and then places crimes, then calls showSteps to check route
  */
-function calcRoute() {
+function calcRoute(){
 	var startPlaces = startBox.getPlaces();
 	var endPlaces = endBox.getPlaces();
-	if ( $(window).width() < 900 ) {
+	if( $(window).width() < 900 ){
 		input.style.width = "100px";
 		output.style.width = "100px";
 	}
 	
 	var startText = ( startPlaces && startPlaces.length > 0 ? startPlaces[0].formatted_address : input.value );
-	if (startText === "") {
+	if( startText === "" ){
 		input.value = "Missing";
 		input.style.color = "red";
 	}
 	
 	var endText = ( endPlaces && endPlaces.length > 0 ? endPlaces[0].formatted_address : output.value);
-	if (endText === "") {
+	if( endText === "" ){
 		output.value = "Missing";
 		output.style.color = "red";
 	}
 	
 	var formattedTime = formatTime(time.value);
-	if (formattedTime === null) {return;}
-	
+	if( formattedTime === null ){return;}
+
 	clearer();
-	
+	resolveHeatVars(); 
+
 	/* Call the geocoder with the start and end input by user, bounding to Wilmington, get directions if responses are good */
 	geocoder.geocode({
 			'address': startText,
@@ -9328,8 +9397,8 @@ function calcRoute() {
 														new google.maps.LatLng(wilBoarders.n, wilBoarders.e) )
 						: null)
 		},
-		function(results, status) {
-			if (status == google.maps.GeocoderStatus.OK) {
+		function(results, status){
+			if( status == google.maps.GeocoderStatus.OK ){
 				geocoder.geocode({
 						'address': endText,
 						'bounds': ( !driving 
@@ -9337,8 +9406,8 @@ function calcRoute() {
 																	new google.maps.LatLng(wilBoarders.n, wilBoarders.e) )
 									: null)
 					},
-					function(results, status) {
-						if (status == google.maps.GeocoderStatus.OK) {
+					function(results, status){
+						if( status == google.maps.GeocoderStatus.OK ){
 							getDirections(startText, endText, formattedTime, true);
 						}
 						else {
@@ -9360,7 +9429,7 @@ function calcRoute() {
  * @param formattedTime a military time hour of the day
  * @param checkIfOutsideWilmington {boolean} 
  */
-function getDirections(startText, endText, formattedTime, checkIfOutsideWilmington) {
+function getDirections(startText, endText, formattedTime, checkIfOutsideWilmington){
 	request = {
 		origin: startText,
 		destination: endText,
@@ -9368,29 +9437,29 @@ function getDirections(startText, endText, formattedTime, checkIfOutsideWilmingt
 		provideRouteAlternatives: false,
 		waypoints: []
 	};
-	directionsService.route(request, function(response, status) {
-		if (status == google.maps.DirectionsStatus.OK) {
-			if (endMarker) {
+	directionsService.route(request, function(response, status){
+		if( status == google.maps.DirectionsStatus.OK ){
+			if( endMarker ){
 				endMarker.setMap(null);
 				endMarker = null;
 			}
 			directionCalls++;
 			
-			if (checkIfOutsideWilmington) {
-				if ( !driving ) {
-					if ( !isInWilmington(response.routes[0].overview_path[0], input) 
-						 || !isInWilmington(response.routes[0].overview_path[ response.routes[0].overview_path.length - 1 ], output) ) {
+			if( checkIfOutsideWilmington ){
+				if( !driving ){
+					if( !isInWilmington(response.routes[0].overview_path[0], input) 
+						 || !isInWilmington(response.routes[0].overview_path[ response.routes[0].overview_path.length - 1 ], output) ){
 						return false;
 					}
 				}
 				else { // if entering or leaving Wilmington when driving, move to the edge so map isn't too zoomed out, move it back at the end
-					if ( !isInWilmington(response.routes[0].overview_path[0])
-							&& !isInWilmington(response.routes[0].overview_path[ response.routes[0].overview_path.length - 1 ]) ) {
+					if( !isInWilmington(response.routes[0].overview_path[0])
+							&& !isInWilmington(response.routes[0].overview_path[ response.routes[0].overview_path.length - 1 ]) ){
 						return false;
 					}
 					var newPlace = whereLeaveWilmington(response.routes[0].overview_path);
-					if (newPlace) {
-						if (newPlace.replaceStart === true) {
+					if( newPlace ){
+						if( newPlace.replaceStart === true ){
 							savedStart = response.routes[0].overview_path[0];
 							getDirections(newPlace.latLng, endText, formattedTime);
 						}
@@ -9402,15 +9471,15 @@ function getDirections(startText, endText, formattedTime, checkIfOutsideWilmingt
 					}
 				}
 			}
-			
+
 			end = response.routes[0].overview_path[ response.routes[0].overview_path.length - 1 ];
-			
+
 			// put bounds a little wider than route where crimes will be searched
 			var tempsw = new google.maps.LatLng( response.routes[0].bounds.getSouthWest().lat() - .01,
 												 response.routes[0].bounds.getSouthWest().lng() - .016 );
 			var tempne = new google.maps.LatLng( response.routes[0].bounds.getNorthEast().lat() + .01,
 												 response.routes[0].bounds.getNorthEast().lng() + .016 );
-			
+
 			// uses coordsMultiplier as a multiplier to create the checkerboard used for estimating distances
 			indexingOrigin = getBounds(tempsw);
 			originIndex = new xy( indexingOrigin.getSouthWest().lng(), indexingOrigin.getSouthWest().lat() );
@@ -9421,31 +9490,41 @@ function getDirections(startText, endText, formattedTime, checkIfOutsideWilmingt
 			// set limit of checkerboard at top right corner of where we're looking and make crime array 
 			var arrayBounds = getBoundIndex(tempne);
 			lngArray = new Array(arrayBounds.x + 1);
-			interArray = new Array(arrayBounds.x + 1)
+			interArray = new Array(arrayBounds.x + 1);
+			heatArray = new Array(arrayBounds.x + 1);
+			shapeMap = new Array(arrayBounds.x + 1);
 			if(debug){console.log("array length is "+lngArray.length);console.log("y is "+arrayBounds.y);}
-			for (var i = 0, ii = lngArray.length, iii = arrayBounds.y + 1; i < ii; i++) { // build checkerboard of 0s for saving future crimes 
+			for( var i = 0, ii = lngArray.length, iii = arrayBounds.y + 1; i < ii; i++ ){ // build checkerboard of 0s for saving future crimes 
 				lngArray[i] = new Array(iii);
 				interArray[i] = new Array(iii);
-				for (var j = 0; j < iii; j++) {
+				for( var j = 0; j < iii; j++ ){
 					lngArray[i][j] = 0;
 					interArray[i][j] = false;
 				}
 			}
+			for( var i = 0, ii = heatArray.length, iii = arrayBounds.y + 1; i < ii; i++ ){ // build checkerboard of 0s for heat map 
+				heatArray[i] = new Array(iii);
+				shapeMap[i] = new Array(iii);
+				for( var j = 0; j < iii; j++ ){
+					heatArray[i][j] = 0;
+					shapeMap[i][j] = 0;
+				}
+			}
 			var totalData = 0, circleCounter = 0, ucrCounter = 0;
 			var numTime = Number(formattedTime);
-			for (var i = numTime + 23; i < numTime + 25; i++) {
-				hourShootings[i % 24].features.forEach(function(element, index, array) {
-					if (element.geometry.coordinates) {
-						if ( element.geometry.coordinates[0] > tempsw.lng() && element.geometry.coordinates[0] < tempne.lng() && 
-							 element.geometry.coordinates[1] > tempsw.lat() && element.geometry.coordinates[1] < tempne.lat() ) {
+			for( var i = numTime + 23; i < numTime + 25; i++ ){
+				hourShootings[i % 24].features.forEach(function(element, index, array){
+					if( element.geometry.coordinates ){
+						if( element.geometry.coordinates[0] > tempsw.lng() && element.geometry.coordinates[0] < tempne.lng() && 
+							 element.geometry.coordinates[1] > tempsw.lat() && element.geometry.coordinates[1] < tempne.lat() ){
 							var tempDate = new Date(element.properties.date);
-							if (tempDate.getFullYear() > 2012) {
+							if( tempDate.getFullYear() > 2012 ){
 								var crimeType = '';
-								if ( !element.properties.is_homicide ) {
+								if( !element.properties.is_homicide ){
 									crimeType = '200';
 								}
 								crimes.push(
-									new Crime(element.geometry.coordinates[0], element.geometry.coordinates[1], element.properties.hour, crimeType) 
+									new Crime(element.geometry.coordinates[0], element.geometry.coordinates[1], element.properties.hour, crimeType)
 								);
 								placeMarker(
 									new google.maps.LatLng(element.geometry.coordinates[1], element.geometry.coordinates[0]),
@@ -9454,247 +9533,255 @@ function getDirections(startText, endText, formattedTime, checkIfOutsideWilmingt
 									tempDate,
 									element.properties.popupContent
 								);
+								crimeMapWeight({
+										center: new google.maps.LatLng(element.geometry.coordinates[1], element.geometry.coordinates[0])
+									}, weighter(crimeType)
+								);
 							}
+							/*else {
+								var crimeType = '';
+								if ( !element.properties.is_homicide ) {
+									crimeType = '200';
+								}
+								heatCrimes.push(
+									new Crime(element.geometry.coordinates[0], element.geometry.coordinates[1], element.properties.hour, crimeType)
+								);
+							}*/
 						}
 					}
 				});
 			}
+			for( var i = 0; i < 24; i++ ){
+				if( i < (numTime + 23) % 24 || i > numTime ){
+					hourShootings[i].features.forEach(function(element, index, array){
+						if( element.geometry.coordinates ){
+							if( element.geometry.coordinates[0] > tempsw.lng() && element.geometry.coordinates[0] < tempne.lng() && 
+								element.geometry.coordinates[1] > tempsw.lat() && element.geometry.coordinates[1] < tempne.lat() ){
+								var tempDate = new Date(element.properties.date);
+								if( tempDate.getFullYear() > 2012 ){
+									var crimeType = '';
+									if( !element.properties.is_homicide ){
+										crimeType = '200';
+									}
+									crimeMapWeight({
+											center: new google.maps.LatLng(element.geometry.coordinates[1], element.geometry.coordinates[0])
+										}, weighter(crimeType)
+									);
+								}
+							}
+						}
+					});
+				}
+			}
+			drawHeatMap();
 			drawCircles(response);
 		}
 	});
 }
 
-/** Clear map and all related variables */
-function clearer() {
-	clearOverlays();
-	boxList = [];
-	wayPoints = [];
-	backupWayPoints = [];
-	wayPointsBox = [];
-	wayThereList = [];
-	intersectionBoxListIndex = [];
-	savedIntersections = [];
-	testedObjectIds = [];
-	directionCalls = 0;
-	checkPoints = 0;
-	wayCounter = 0;
-	bestRoute = {};
-	closestSaveDistance = 10000;
-	savedStart = null;
-	savedEnd = null;
-}
-
-/** Draws streets of passed intersection
- * @param intersection 
- */
-function drawLines(intersection) {
-	for (var i = 0, ii = intersection.length; i < ii; i++) {
-		if (intersection[i].path != null) {
-			var color;
-			var weight = 2;
-			if (intersection[i].backward) {
-				color = "red";
+/** Builds polygons out of the heat grid so that they can be displayed by gmaps api */
+function drawHeatMap(){
+	//[down,right,up,left]
+	//[right,up,left,down]
+	var directions = [ function(k,l) {return [k+1,l,heatArray[k+1][l]];}, function(k,l) {return [k,l+1,heatArray[k][l+1]];}, 
+	               function(k,l) {return [k-1,l,heatArray[k-1][l]];}, function(k,l) {return [k,l-1,heatArray[k][l-1]];} ];
+	var shapeNumber = 1;
+	var shapeArray = [];
+	heatArray.forEach(function(column, colIndex, colArray){
+		column.forEach(function(box, rowIndex){
+			if( box > heatThreshold ){
+				if( shapeMap[colIndex][rowIndex] === 0 ){
+					//start polygon
+					var currentShape = [];
+					var a = 0;
+					var movex = colIndex, movey = rowIndex;
+					var start = true;
+					while( start || colIndex != movex || rowIndex != movey ){
+						start = false;
+						currentShape.push(new xy(movex,movey));
+						for( var m=0; m<4; m++ ){
+							//look for next one
+							var results = directions[a % 4](movex,movey);
+							if( results[2] > heatThreshold ){
+								movex = results[0], movey = results[1];
+								//currentShape.push( new xy(movex,movey) );
+								shapeMap[movex][movey] = shapeNumber;
+								lngArray[movex][movey] += 10;
+								a--;
+								if( a<0 ){a += 4;}
+								break;
+							}
+							else {
+								a++;
+							}
+						}
+						
+					}
+					var colLength = colArray.length;
+					currentShape.forEach(function(element, index, array){
+						//fill to the right
+						var fillx = element.x;
+						if( heatArray[fillx+1][element.y] > heatThreshold ){
+							fillx++;
+							while( fillx < colLength && heatArray[fillx][element.y] > heatThreshold && shapeMap[fillx][element.y] == 0 ){
+								shapeMap[fillx][element.y] = shapeNumber;
+								lngArray[fillx][element.y] += 10;
+								fillx++;
+							}
+						}
+						
+					});
+					shapeArray.push(currentShape);
+					shapeNumber++;
+				}
 			}
-			else if(intersection[i].tested) {
-				color = "blue";
+		});
+	});
+	//should have all shapes at this point
+	//need to add it to crime map
+	lngArray.forEach(function(lng, lngIndex){
+		lng.forEach(function(element, index){
+			if( shapeMap[lngIndex][index] ){
+				element += 10;
 			}
-			else if(intersection[i].closeness >= half) {
-				color = "orange";
-				weight = 4;
-			}
-			else if(intersection[i].wayThere) {
-				color = "yellow";
+		});
+	});
+	//need to graph them for the user
+	var rowOrcol = function(line){
+		if( line[0].x == line[1].x ){return true;}
+		return false;
+	};
+	shapeArray.forEach(function(shape){
+		var cleanedShape = [shape[0]];
+		var currentLine = [shape[0]];
+		for( var i = 1, ii = shape.length; i < ii; i++ ){
+			if( currentLine.length > 1 ){
+				//if in the same direction replace end with new point
+				if( (currentLine[1].x == shape[i].x && row) || (currentLine[1].y == shape[i].y && !row) ){
+					currentLine[1] = shape[i];
+				}
+				else {
+					currentLine = [currentLine.pop()];
+					cleanedShape.push(currentLine[0]);
+					currentLine.push(shape[i]);
+					row = rowOrcol(currentLine);
+				}
 			}
 			else {
-				color = "green";
+				currentLine.push(shape[i]);
+				row = rowOrcol(currentLine);
 			}
-			var lineOption = {
-				path: intersection[i].path,
-				strokeColor: color,
-				strokeOpacity: 1.0,
-				strokeWeight: weight
-			};
-			
-			var line = new google.maps.Polyline(lineOption);
-			line.setMap(map);
-			lines.push(line);
 		}
-	}
-}
-
-/**
- * @param index of myRoute array
- * @returns slope:of index lastSlope:of previous array entry index: of myRoute array 
- */
-function getRouteSlope(index) {
-	var slope = getSlope(myRoute[index], myRoute[index + 1]);
-	var lastSlope;
-	if (index == 0) {
-		lastSlope = 0;
-	}
-	else if(index == 1) {
-		lastSlope = getSlope(myRoute[0], myRoute[1]);
-	}
-	else {
-		var j = index-1;
-		var k = distance(myRoute[j], myRoute[j + 1]);
-		/* Don't want a leg that's too short */
-		while (k < .0001 && --j) {
-			k = distance(myRoute[j], myRoute[j + 1]);
-		}
-		lastSlope = getSlope(myRoute[j], myRoute[j + 1]);
-	}
-	return {
-		slope: slope,
-		lastSlope: lastSlope,
-		index: index
+		cleanedArray.push(cleanedShape);
+	});
+	var polyOptions = {
+		clickable: false,
+		fillColor: 'blue',
+		fillOpacity: 0.15,
+		map: map,
+		strokeColor: 'blue',
+		strokeOpacity: 0.8,
+		strokeWeight: 2
 	};
+	cleanedArray.forEach(function(cleanedShape){
+		polygonWays = [];
+		cleanedShape.forEach(function(point){
+			polygonWays.push(getLatLngFromIndex(point));
+		});
+		polyOptions.paths = polygonWays;
+		var poly = new google.maps.Polygon(polyOptions); 
+		overlays.push(poly);
+	});
 }
 
 /** Checks crime along route, calls functions to change route if necessary
  * @param directionResult route from direction response
  */
-function showSteps(directionResult) {
+function showSteps(directionResult){
 	if(debug){placeRoute(wayPoints);}
 	myRoute = directionResult.overview_path; //save as different name for using below
 	var lastIndex = myRoute.length - 2; //handle case for close to finish
 	boxList = [];
-	for (var i = 0, ii = myRoute.length - 1; i < ii; i++) {
-		indicesToCheck--;
-		indicesChecked = false;
+	for( var i = 0, ii = myRoute.length - 1; i < ii; i++ ){
 		var bounds = getBounds(myRoute[i]);
 		var routeSlope = getRouteSlope(i);
 		var escape = null;
-		do {
+		do{
 			//var tempDistance = distance(myRoute[0],bounds.getCenter());
-			if (i >= lastIndex) { //if close to end, just finish regardless of crimes
-				var testCoords = getCoords(bounds);
-				if (Math.abs(testCoords.x - lastCoords.x) < 3 && Math.abs(testCoords.y - lastCoords.y) < 3) {return;}
-			/*} else if(tempDistance < .001) { //if close to beginning, continue regardless of crimes
-				var testCoords = getCoords(bounds);
-				if(Math.abs(testCoords.x-firstCoords.x)>2 && Math.abs(testCoords.y-firstCoords.y)>2 && miniCrimeTest(bounds)) {escape = escapeCheck(myRoute[i],myRoute[i+1],routeSlope.slope,routeSlope.index,bounds,false);}
-				else {escape = escapeCheck(myRoute[i],myRoute[i+1],routeSlope.slope,routeSlope.index,bounds,true);}*/
-			}
-			else { //otherwise, just test for crimes
-				if ( crimeTest(bounds, routeSlope) ) {
-					if(debug){drawRects();}
+			var boxIndex = getCoords(bounds);
+			if( i >= lastIndex ){ //if close to end, just finish regardless of crimes
+				if( Math.abs(boxIndex.x - lastCoords.x) < 3 && Math.abs(boxIndex.y - lastCoords.y) < 3 ){
+					resetEndPoints(request);
 					return;
 				}
+			/*} else if(tempDistance < .001) { //if close to beginning, continue regardless of crimes
+				var testCoords = getCoords(bounds);
+				if(Math.abs(testCoords.x-firstCoords.x)>2 && Math.abs(testCoords.y-firstCoords.y)>2 && crimeTest(bounds)) {escape = escapeCheck(myRoute[i],myRoute[i+1],routeSlope.slope,routeSlope,bounds,false);}
+				else {escape = escapeCheck(myRoute[i],myRoute[i+1],routeSlope.slope,routeSlope,bounds,true);}*/
 			}
-			escape = escapeCheck(myRoute[i], myRoute[i + 1], routeSlope.slope, routeSlope.index, bounds, true);
+			else { //otherwise, just test for crimes
+				if( crimeTest(bounds) ){
+					if(debug){drawRects(boxList);}
+					if( crimeMode ){
+						checkForWaypoints(boxIndex);
+					}
+					else {
+						saveClosestRoute(bounds);
+						if( addBackupWayPoint() ){return;} // This is in case most recently added waypoint alters route so that it no longer gets as far without hitting a crime
+						if( rerouteForCrime(routeSlope, boxIndex, false) ){return;}
+					}
+				}
+				else {
+					checkForWaypoints(boxIndex);
+					if( crimeMode ){
+						crimeIndex = boxList.length;
+						crimeMode = false;
+					}
+				}
+			}
+			escape = escapeCheck(myRoute[i], myRoute[i + 1], routeSlope.slope, routeSlope, bounds, true);
 			//handle bad start here
-			if (escape) {
+			if( escape ){
 				bounds = nextRect(escape, bounds);
 			}
-		} while (escape);
+		} while( escape );
+		if( escape === false ){return;}
 	}
-	//resetEndPoints(request);
-	if(debug){drawRects();}
+	if(debug){drawRects(boxList);}
 }
 
-
-
-function saveClosestRoute(box) {
-	var closestPoint = getCoords(box);
-	endPoint = getBoundIndex(end);
-	var testDistance = Math.sqrt( Math.pow(endPoint.x - closestPoint.x, 2) + Math.pow(endPoint.y - closestPoint.y, 2) );
-	//console.log('test distance is '+testDistance);
-	if (testDistance < closestSaveDistance) {
-		closestSaveDistance = testDistance;
-		//console.log('closest is '+closestSaveDistance+' and call count is '+directionCalls);
-		bestRoute = {
-			origin: request.origin,
-			destination: request.destination,
-			travelMode: request.travelMode,
-			provideRouteAlternatives: false,
-			waypoints: request.waypoints
-		};
-	}
-}
-
-/** Tests for crimes; if one is found, calls getIntersection to try to get around it 
- * @param bounds (LatLngBounds) to test for crimes in
- * @param routeSlope {slope} of current leg in current directions
- * @returns {Boolean} if crime is found
+/** Handles what to do once a crime is found or a route is considered bad
+ * @param routeSlope to pass to getIntersection
+ * @param boxIndex coords of current box
+ * @returns {Boolean} if routing should continue
  */
-
-function crimeTest(bounds, routeSlope) {
-	var boxIndex = getCoords(bounds);	
-	var crimer = lngArray[boxIndex.x][boxIndex.y];
-	var remove = false;
-	var wrongWay = null;
-	if (crimer == 0) {
-		if ( wrongWay = checkForWaypoints(boxIndex, routeSlope) ) {
-			crimer = 10;
-		}
-	}
-	
-	if (crimer != 0) {
-		if (crimeMode) {
-			if (wrongWay == null) {
-				wrongWay = checkForWaypoints(boxIndex, routeSlope);
-			}
-			if ( !wrongWay ) {
-				return false;
-			}
-		}
-		
-		if (wrongWay) {
-			if(debug){console.log('wrongway is '+wrongWay);}
-			if (backupUsed) {
-				checkPoints = 2;
-			}
-			else {
-				checkPoints = 1;
-			}
-			removeWays();
-			request.waypoints = wayPoints;
-			window.setTimeout(function() {callNewRoute(false);}.bind(this), 150); 
-		}
-		
-		saveClosestRoute(bounds);
-		/* This is in case most recently added waypoint alters route so that it no longer gets as far without hitting a crime */
-		if (!backupUsed && checkPoints != 0) {
-			if ( addBackupWayPoint() ) {
-				return true;
-			}
-		}
-		remove = true;
-		
-		if (boxList.length > crimeIndex) {
-			if(debug){console.log("boxList is "+boxList.length+" crimeindex is "+crimeIndex);}
-			if (remove) {
-				removeWays();
-			}
-			getIntersection(null, boxList.length - 1, routeSlope, false, 1); // go back to when was first unsafe
-		}
-		else {
-			crimeMode = true;
-			//checkForWaypoints(boxIndex, routeSlope);
-			return false;
-			//crime at beginning, crime mode (follow route until a safe intersection is found, then set that as minimum), (sometimes a slight reroute can happen, not always repeatable)
-		}
-		return true;
+function rerouteForCrime(routeSlope, boxIndex, sideStep){	
+	if( boxList.length > crimeIndex ){
+		if(debug){console.log("boxList is "+boxList.length+" crimeindex is "+crimeIndex);}
+		removeWays();
+		getIntersection(null, boxList.length - 1, routeSlope, sideStep, 1); // go back to when was first unsafe
 	}
 	else {
-		if (crimeMode) {
-			crimeIndex = boxList.length;
-			crimeMode = false;
-		}
+		crimeMode = true;
+		checkForWaypoints(boxIndex);
+		return false;
+		//crime at beginning, crime mode (follow route until a safe intersection is found, then set that as minimum), (sometimes a slight reroute can happen, not always repeatable)
 	}
-	return false;
+	return true;
 }
 
 /**
  * Adds saved "backup" waypoint that tries to adjust the route where it was supposed to go,
- * in case google changes the earlier part of the route to get to the newest waypoint 
+ * in case google changes the earlier part of the route to get to the newest waypoint
+ * @returns {Boolean} if caller should stop executing
  */
-function addBackupWayPoint() {
-	if (wayPoints[backPlace]) {
+function addBackupWayPoint(){
+	var backWay = wayPoints[backPlace];
+	if( !backupUsed && checkPoints != 0 && backWay && backupWayPoints.length > 0 ){
 		if(debug){console.log("backPlace is "+backPlace);}
 		wayPoints.splice( backPlace, 0, backupWayPoints.pop() );
 		wayThereList.splice(backPlace, 0, backxy);
-		wayPointsBox.splice( backPlace, 0, getBoundIndex(wayPoints[backPlace].location) );
+		wayPointsBox.splice( backPlace, 0, getBoundIndex(backWay.location) );
 		checkPoints = wayPoints.length;
 		if(debug){console.log("checkpoint count is "+checkPoints);}
 		testReset();
@@ -9702,79 +9789,8 @@ function addBackupWayPoint() {
 		testedObjectIds.push(savedIntersections[backxy.x][backxy.y].oId);
 		//wayThereList.push({i:backi, j:backi});
 		request.waypoints = wayPoints;
-		window.setTimeout(function() {callNewRoute(true);}.bind(this), 150);
+		window.setTimeout(function(){callNewRoute(true);}, 150);
 		return true;
-	}
-	return false;
-}
-
-/** Removes checkPoints # of waypoints, using wayTest to reference */
-function removeWays() {
-	if(wayPoints.length >= checkPoints) {
-		for (var i = 0; i < checkPoints; i++) {
-			wayPoints.pop();
-			wayPointsBox.pop();
-			var temp = wayThereList.pop();
-			savedIntersections[temp.x][temp.y].wayThere = false;
-		}
-	}
-}
-
-/** Looks to see if any waypoints are in checkbox, removes them if they are
- * @param checkBox box to look for waypoints in
- * @param routeSlope of current route leg
- * @returns if going the wrong way
- */ 
-function checkForWaypoints(checkBox, routeSlope) {
-	if(debug){console.log('checkpoints is '+checkPoints);}
-	for (var i = 0, ii = wayPointsBox.length; i < ii; i++) {
-		if (wayTest[i]) {
-			if (wayPointsBox[i].x == checkBox.x && wayPointsBox[i].y == checkBox.y) {
-				if (checkPoints == 2) {	// this should happen before reaching the waypoint, make sure the next two indices in overview_path move towards the next waypoint
-					indicesToCheck = 3;
-					waySlope = getSlope(wayPoints[wayPoints.length - 2].location, wayPoints[wayPoints.length - 1].location);
-				}
-				if (--checkPoints == 0 && driving) {
-					if ( /*Math.abs(routeSlope.slope.slope / latestWaypointSlope.slope - 1) > .2 ||*/ 
-						 routeSlope.slope.north != latestWaypointSlope.north && 
-						 routeSlope.slope.east != latestWaypointSlope.east) {
-						if(debug){
-							console.log('routeSlope is '+routeSlope.slope.slope);
-							console.log('latest is '+latestWaypointSlope.slope);
-							var routeEast = routeSlope.slope.east ? .003 : -.003;
-							var routeEnd = new google.maps.LatLng(routeEast*routeSlope.slope.slope+wayPoints[i].location.lat(),wayPoints[i].location.lng()+routeEast);
-							var latestEast = latestWaypointSlope.east ? .003 : -.003;
-							var latestEnd = new google.maps.LatLng(latestEast*latestWaypointSlope.slope+wayPoints[i].location.lat(),wayPoints[i].location.lng()+latestEast);
-							var lineAdder = function(end,color){
-								var lineOption = {
-									path:[wayPoints[i].location,end],
-									strokeColor:color,
-									strokeOpacity:1.0,
-									strokeWeight:2
-								};
-								var line = new google.maps.Polyline(lineOption);
-								line.setMap(map);
-								lines.push(line);
-							};
-							lineAdder(routeEnd,"green");
-							lineAdder(latestEnd,"red");
-						}
-						return true;
-					}
-				}
-				if(debug){console.log("remove waypoint");}
-				wayTest[i] = false;
-			}
-			else if (!indicesChecked && indicesToCheck > 0) {
-				// test to make sure heading towards next waypoint
-				var close = closenessCalculator(waySlope, routeSlope.slope, routeSlope.slope);
-				if (close > half) {
-					indicesToCheck = 0;
-					return true;
-				}
-				indicesChecked = true;
-			}
-		}
 	}
 	return false;
 }
@@ -9787,117 +9803,44 @@ function checkForWaypoints(checkBox, routeSlope) {
  * @param counter for testIntersection
  * @param savedBoxLength (number) to cut boxList back to if too many sidesteps 
  */
-function orderIntersections(intersection, routeSlope, sidestep, counter, savedBoxLength) {
+function orderIntersections(intersection, routeSlope, sidestep, counter, savedBoxLength){
 	var localInt = intersection.intersection;
-	if (localInt.length < 3 && !sidestep) { //intersection with no alternative route
-		for (var i = 0, ii = localInt.length; i < ii; i++) {
-			localInt[i].tested = true;
-			testedObjectIds.push(localInt[i].oId);
-		}
+	if( localInt.length < 3 && !sidestep ){ //intersection with no alternative route
+		localInt.forEach(function(street){
+			street.tested = true;
+			testedObjectIds.push(street.oId);
+		});
 	}
 	else {
 		var slopeToEnd;
-		for (var i = 0, ii = localInt.length; i < ii; i++) {
-			if (localInt[i].path != null) {
+		for( var i = 0, ii = localInt.length; i < ii; i++ ){
+			if( localInt[i].path != null ){
 				slopeToEnd = getSlope(localInt[i].path[0], end);
 				break;
 			}
 		}
-		for (var i = 0, ii = localInt.length; i < ii; i++) {
-			if ( !localInt[i].tested ) {
-				var streetSlope = getSlope(localInt[i].path[0], localInt[i].path[1]);
-				if ( Math.abs(routeSlope.lastSlope.slope / streetSlope.slope - 1) < .11 && 
+		localInt.forEach(function(street){
+			if( !street.tested ){
+				var streetSlope = getSlope(street.path[0], street.path[1]);
+				if( Math.abs(routeSlope.lastSlope.slope / streetSlope.slope - 1) < .11 && 
 					 routeSlope.lastSlope.north != streetSlope.north && 
-					 routeSlope.lastSlope.east != streetSlope.east ) {
-					localInt[i].tested = true;
-					localInt[i].backward = true;
+					 routeSlope.lastSlope.east != streetSlope.east ){
+					street.tested = true;
+					street.backward = true;
 				}
-				else if (intersection.newAdd) { //don't do this again for previously added intersections
-					localInt[i].closeness = closenessCalculator(slopeToEnd, streetSlope, localInt[i].slope);
+				else if( intersection.newAdd ){ //don't do this again for previously added intersections
+					street.closeness = closenessCalculator(slopeToEnd, streetSlope, street.slope);
 				}
 			}
-		}
+		});
 		localInt = rankStreets(localInt);
 	}
-	if (intersection.newAdd) {
+	if( intersection.newAdd ){
 		intersectionBoxListIndex.push(intersection.index);
 		intersection.index = savedIntersections.length;
 		savedIntersections.push(localInt);
 	}
 	testIntersection(intersection.index, counter, routeSlope, savedBoxLength);
-}
-
-/** Returns the radians between slopeToEnd and testSlope angles
- * @param slopeToEnd
- * @param overallTestSlope
- * @param testSlope
- * @returns radians between slopes
- */
-function closenessCalculator(slopeToEnd, overallTestSlope, testSlope) {
-	var slopeCompare = slopeToEnd.slope * overallTestSlope.slope;
-	if (slopeCompare > 0) {//same quadrant
-		if (slopeToEnd.north == testSlope.north) { //forward
-			return Math.abs( Math.atan( Math.abs(slopeToEnd.slope) ) - Math.atan( Math.abs(testSlope.slope) ) );
-		}
-		else { //backward
-			return Math.PI - Math.abs( Math.atan( Math.abs(slopeToEnd.slope) ) - Math.atan( Math.abs(testSlope.slope) ) );
-		}
-	}
-	else if(slopeCompare <= -1) {//case 1 for different quadrants
-		if (slopeToEnd.north == testSlope.north && slopeToEnd.east != testSlope.east) { //forward
-			return Math.PI - Math.atan( Math.abs(slopeToEnd.slope) ) - Math.atan( Math.abs(testSlope.slope) );
-		}
-		else { //backward
-			return Math.atan( Math.abs(slopeToEnd.slope) ) + Math.atan( Math.abs(testSlope.slope) );
-		}
-	}
-	else {//case 2 for different quadrants
-		if (slopeToEnd.north != testSlope.north && slopeToEnd.east == testSlope.east) { //forward
-			return Math.atan( Math.abs(slopeToEnd.slope) ) + Math.atan( Math.abs(testSlope.slope) );
-		}
-		else { //backward
-			return Math.PI - Math.atan( Math.abs(slopeToEnd.slope) ) - Math.atan( Math.abs(testSlope.slope) );
-		}
-	}
-}
-
-/** Clears an intersection after it's no longer needed
- * @param i index of intersection
- * @param j index of street within i intersection
- */
-function clearInter(i,j) {
-	savedIntersections[i][j].path = null;
-	savedIntersections[i][j].stName = null;
-	savedIntersections[i][j].closeness = null;
-	savedIntersections[i][j].slope = null;
-	savedIntersections[i][j].tested = true;
-}
-
-/**
- * @param bounds (LatLngBounds) to test for crimes in
- * @returns crime weight of bounds
- */
-function miniCrimeTest(bounds) {
-	var boxIndex = getCoords(bounds);
-	return lngArray[boxIndex.x][boxIndex.y];
-}
-
-/** Creates waypoint to be used for adjusting the route when it doesn't go where expected
- * @param index of savedIntersections
- * @param j index of street in savedIntersections[index]
- */
-function createBackupWayPoint(index, j) {
-	var wayPoint = createWaypoint(index, j, .5);
-	var wayPointObject = {location: wayPoint};
-	if (driving) {
-		wayPointObject.stopover = false;
-	}
-	backupWayPoints.push( wayPointObject );
-	backupUsed = false;
-	if(debug){console.log("backupUsed is " + backupUsed);}
-	backPlace = wayPoints.length;
-	if(debug){console.log("backPlace set as " + backPlace);}
-	backxy = new xy(index, j);
 }
 
 /** Finds if streets move towards destination when needed, orders when needed, and tests for crimes along routes when needed, creates new route if good street is found
@@ -9906,7 +9849,7 @@ function createBackupWayPoint(index, j) {
  * @param routeSlope {slope} of intended direction
  * @param savedBoxLength (number) to cut boxList back to if too many sidesteps
  */
-function testIntersection(index, counter, routeSlope, savedBoxLength, forResume) {
+function testIntersection(index, counter, routeSlope, savedBoxLength, forResume){
 	//test all routes, throw out where we came from and backwards ones
 	//routes have path of latlngs, oid, tested, and boxlist x/y
 	if(debug) {
@@ -9922,40 +9865,52 @@ function testIntersection(index, counter, routeSlope, savedBoxLength, forResume)
 		}
 	}
 	var i = (forResume === undefined ? 0 : forResume);
-	for (var ii = savedIntersections[index].length; i < ii; i++) {
-		if ( !savedIntersections[index][i].tested ) {
-			if ( findOid(savedIntersections[index][i].oId) ) { //See if street is already tested from another intersection
+	for( var ii = savedIntersections[index].length; i < ii; i++ ){
+		if( !savedIntersections[index][i].tested ){
+			if( findOid(savedIntersections[index][i].oId) ){ //See if street is already tested from another intersection
 				clearInter(index,i);
 			}
-			else if (savedIntersections[index][i].closeness < quarter && 
+			else if( savedIntersections[index][i].closeness < quarter && 
 					 	distance(savedIntersections[index][i].path[ savedIntersections[index][i].path.length - 1 ], end) < 
-					 	distance(savedIntersections[index][i].path[0], end) ) {//if not tested and forward
+					 	distance(savedIntersections[index][i].path[0], end) ){//if not tested and forward
 				//test this route first before adding waypoints
 				var bounds = getBounds(savedIntersections[index][i].path[0]);
 				var escape = null;
 				var crime = 0;
-					do {
-						crime = miniCrimeTest(bounds);
-						escape = escapeCheck(savedIntersections[index][i].path[0], 
-											 savedIntersections[index][i].path[ savedIntersections[index][i].path.length - 1 ],
-											 savedIntersections[index][i].slope,
-											 routeSlope.index,
-											 bounds,
-											 false);
-						bounds = nextRect(escape, bounds);
-					} while (escape && !crime);
-				if ( !crime ) {//If a safe street, place a waypoint
-					for (var j = 0, jj = savedIntersections[index].length; j < jj; j++) {
-						if (savedIntersections[index][j].backward) {
-							createBackupWayPoint(index, j);
-						}
+				drivingTest = [];
+				do{
+					crime = crimeTest(bounds);
+					escape = escapeCheck(savedIntersections[index][i].path[0], 
+										 savedIntersections[index][i].path[ savedIntersections[index][i].path.length - 1 ],
+										 savedIntersections[index][i].slope,
+										 routeSlope,
+										 bounds,
+										 false);
+					bounds = nextRect(escape, bounds);
+					if( escape ){
+						drivingTest.push( getCoords(bounds) );
 					}
+				} while( escape && !crime );
+				if( !crime ){//If a safe street, place a waypoint
+					savedIntersections[index].forEach(function(street, streetIndex){
+						if( street.backward ){
+							createBackupWayPoint(index, streetIndex);
+						}
+					});
 					var wayPoint = createWaypoint(index, i, .85);
 					addWaypoint(index, i, wayPoint);
-					latestWaypointSlope = savedIntersections[index][i].slope;
 					request.waypoints = wayPoints;
 					if(debug){drawLines(savedIntersections[index]);}
-					window.setTimeout(function() {callNewRoute(false, index, counter, routeSlope, savedBoxLength, i);}.bind(this), 150);
+					drivingTestArguments = [];
+					var newRouteArgs = [false]; 
+					var j = 0;
+					while( arguments[j] ){
+						drivingTestArguments.push(arguments[j]);
+						newRouteArgs.push(arguments[j]);
+						j++;
+					}
+					newRouteArgs[5] = i;
+					window.setTimeout(function(){callNewRoute.apply(null, this);}.bind(newRouteArgs), 150);
 					clearInter(index, i);
 					return;
 					//place some waypoints, one in middle of where we came from, near end of where we're going
@@ -9966,26 +9921,25 @@ function testIntersection(index, counter, routeSlope, savedBoxLength, forResume)
 					clearInter(index, i);
 				}
 			}
-			else if (savedIntersections[index][i].closeness < half && counter < sideSteps) {
-				//test this route first before adding waypoints
+			else if( savedIntersections[index][i].closeness < half && counter < sideSteps ){ //test this route first before adding waypoints
 				var bounds = getBounds(savedIntersections[index][i].path[0]);
 				var escape = null;
 				var crime = 0;
 				if(debug){drawLines(savedIntersections[index]);}
-				do {
-					crime = miniCrimeTest(bounds);
+				do{
+					crime = crimeTest(bounds);
 					escape = escapeCheck(savedIntersections[index][i].path[0],
 										 savedIntersections[index][i].path[ savedIntersections[index][i].path.length - 1 ],
 										 savedIntersections[index][i].slope,
-										 routeSlope.index,
+										 routeSlope,
 										 bounds,
 										 false);
 					bounds = nextRect(escape, bounds);
-				} while(escape && crime == 0);
-				if (crime == 0) {//If a safe street, place a waypoint
-					if (counter == 1) {
-						for (var j = 0, jj = savedIntersections[index].length; j < jj; j++) {
-							if (savedIntersections[index][j].backward) {
+				} while( escape && crime == 0 );
+				if( !crime ){//If a safe street, place a waypoint
+					if( counter == 1 ){
+						for( var j = 0, jj = savedIntersections[index].length; j < jj; j++ ){
+							if( savedIntersections[index][j].backward ){
 								createBackupWayPoint(index, j);
 								break;
 							}
@@ -10001,7 +9955,7 @@ function testIntersection(index, counter, routeSlope, savedBoxLength, forResume)
 						lastSlope: lastSlope
 					};
 					clearInter(index, i);
-					getIntersection(testBox, null, tempSlope, true, counter + 1, (counter == 1 ? boxList.length : savedBoxLength) );
+					getIntersection( testBox, null, tempSlope, true, counter + 1, (counter == 1 ? boxList.length : savedBoxLength) );
 					return;
 				}
 				else {//not a safe street, mark as tested, add to tested list, and clear to save memory
@@ -10014,214 +9968,105 @@ function testIntersection(index, counter, routeSlope, savedBoxLength, forResume)
 			}
 		}
 	}
-	
-	if (counter >= sideSteps) { //back up to where we first started sidestepping
+
+	if( counter >= sideSteps ){ //back up to where we first started sidestepping
 		var tempBoxLength = boxList.length;
 		if(debug){console.log("bl is "+tempBoxLength);console.log("sbl is "+savedBoxLength);}
-		while (tempBoxLength-- >= savedBoxLength) {
+		while( tempBoxLength-- >= savedBoxLength ){
 			boxList.pop();
 		}
 		if(debug){console.log("savedBox is "+savedBoxLength);}
 	}
 	if(debug){drawLines(savedIntersections[index]);}
 	//only if whole intersection has crime
-	removeFromBoxList(routeSlope, true, counter, (routeSlope.slope == null ? savedBoxLength : null));
+	removeFromBoxList( routeSlope, true, counter, (routeSlope.slope == null ? savedBoxLength : null) );
 }
 
-function resetEndPoints(request) {
-	// reset start or end
+/** Resets driving start or end to their original place outside of Wilmington once rerouting is done
+ * @param request
+ */
+function resetEndPoints(request){
 	directionCalls = maxDir;
-	if (savedStart) {
+	tripReset = true;
+	if( savedStart ){
 		request.origin = savedStart;
 		bestRoute = request;
 		callNewRoute();
 		savedStart = null;
 	}
-	else if (savedEnd) {
+	else if( savedEnd ){
 		request.destination = savedEnd;
 		callNewRoute();
 		savedEnd = null;
 	}
 }
 
-/**
- * Used to make new Google Maps route
+/** Used to make new Google Maps route
  * @param doBackup {boolean} or not doBackup
  * @param index, counter, routeSlope, savedBoxLength, i are needed for testIntersection
  */
-function callNewRoute(doBackup, index, counter, routeSlope, savedBoxLength, i) {
-	directionsService.route(request, function(response, status){
-		if (status == google.maps.DirectionsStatus.OK) {
-			if(debug){drawRects();}
-			rends.setDirections(response);
-			directionCalls++;
-			console.log("calls are " + directionCalls);
-			if (directionCalls > maxDir) {
-				if (request != bestRoute) {
-					request = bestRoute;
-					callNewRoute(doBackup, index, counter, routeSlope, savedBoxLength, i);
-				} else if (driving) {
-					resetEndPoints(request);
+function callNewRoute(doBackup, index, counter, routeSlope, savedBoxLength, i){
+	if( directionCalls < maxDir + 2 ){
+		directionsService.route(request, function(response, status){
+			if( status == google.maps.DirectionsStatus.OK ){
+				if(debug){drawRects(boxList);}
+				rends.setDirections(response);
+				directionCalls++;
+				console.log("calls are " + directionCalls);
+				if( drivingResume ){
+					drivingResume = false;
+					testIntersection.apply(null, drivingTestArguments);
+					return;
 				}
-				return;
-			}
-			if (doBackup) {
-				backupUsed = true;
-				if(debug){console.log("backupUsed is "+backupUsed);}
-			}
-			savedResult = response.routes[0];
-			updateWaypoints();
-			showSteps(savedResult);
-		}
-		else if (status == google.maps.DirectionsStatus.MAX_WAYPOINTS_EXCEEDED) {
-			//clean up waypoints
-			console.log("called too many");
-		}
-		else if (status == google.maps.DirectionsStatus.OVER_QUERY_LIMIT) {
-			console.log("calling too fast");
-			window.setTimeout(function() {callNewRoute(doBackup, index, counter, routeSlope, savedBoxLength, i);}.bind(this), 1000);
-		}
-		else {
-			console.log("bad directions");
-			if (!doBackup) {
-				if(debug){placeRoute(wayPoints);}
-				testIntersection(index, counter, routeSlope, savedBoxLength, i + 1);
-			}
-		}
-	});
-}
-
-/**
- * Google geocoded waypoints might be different than what is saved, 
- * if they aren't updated, they might be missed when trying to remove them
- */
-function updateWaypoints() {
-	var legIndex = 0, legLength = savedResult.legs.length;
-	for (var wayPointIndex = 0, ii = wayPoints.length; wayPointIndex < ii; wayPointIndex++) {
-		for (; legIndex < legLength; legIndex++) {
-			for (var viaWaypointIndex = 0, viaWaypointLength = savedResult.legs[legIndex].via_waypoints.length; viaWaypointIndex < viaWaypointLength; viaWaypointIndex++) {
-				if (!wayPoints[wayPointIndex]) {
-					console.log('length is ' + wayPoints.length);
-					console.log('no waypoint here');
+				if( directionCalls > maxDir ){
+					if( directionCalls == maxDir + 1 ){
+						if( request != bestRoute ){
+							if( driving && tripReset ){
+								return;
+							}
+							request = bestRoute;
+							directionCalls = maxDir;
+							callNewRoute(doBackup, index, counter, routeSlope, savedBoxLength, i);
+						} else if( driving && !tripReset ){
+							resetEndPoints(request);
+						}
+					}
+					return;
 				}
-				wayPoints[wayPointIndex].location = new google.maps.LatLng( savedResult.legs[legIndex].via_waypoints[viaWaypointIndex].lat(),
-																			savedResult.legs[legIndex].via_waypoints[viaWaypointIndex].lng() );
-				wayPointsBox[wayPointIndex] = getBoundIndex(wayPoints[wayPointIndex].location);
-				wayPointIndex++;
+				if( doBackup ){
+					backupUsed = true;
+					if(debug){console.log("backupUsed is "+backupUsed);}
+				}
+				savedResult = response.routes[0];
+				updateWaypoints();
+				if( driving && !doBackup ){
+					drivingBoxList = [];
+					for(var i=0,ii=boxList.length;i<ii;i++) {
+						drivingBoxList.push({
+							box: new xy(boxList[i].box.x, boxList[i].box.y),
+							index: boxList[i].index
+						});
+					}
+				}
+				showSteps(savedResult);
 			}
-			if (viaWaypointLength == 0) {
-				//end is waypoint
-				wayPoints[wayPointIndex].location = new google.maps.LatLng( savedResult.legs[legIndex].end_location.lat(),
-																			savedResult.legs[legIndex].end_location.lng() );
-				wayPointsBox[wayPointIndex] = getBoundIndex(wayPoints[wayPointIndex].location);
-				legIndex++;
-				break;
+			else if( status == google.maps.DirectionsStatus.MAX_WAYPOINTS_EXCEEDED ){
+				//clean up waypoints
+				console.log("called too many");
 			}
-		}
-	}
-}
-
-
-/** Adds LatLng to route waypoints list, and sets variables for that location
- * @param i index of intersection that waypoint is in
- * @param j leg of intersection that waypoint is in
- * @param wayPoint {LatLng} of point to be added
- */
-function addWaypoint(i, j, wayPoint) {
-	var wayPointObject = {location: wayPoint};
-	if (driving) {
-		wayPointObject.stopover = false;
-	}
-	wayPoints.push(wayPointObject);
-	checkPoints = wayPoints.length;
-	if(debug){console.log("checkpoint count is "+checkPoints);}
-	savedIntersections[i][j].wayThere = true; //set it as being in the right direction in case we return to this intersection later
-	testedObjectIds.push(savedIntersections[i][j].oId); 
-	wayThereList.push( new xy(i, j) );
-	wayPointsBox.push( getBoundIndex(wayPoint) );
-	testReset();
-}
-
-/** Resets wayTest helper variable */
-function testReset() {
-	wayTest = [];
-	for (var i = 0; i < wayPoints.length; i++) {
-		wayTest.push(true);
-	}
-}
- 
-/** 
- * @param i index in savedIntersections
- * @param j leg of ith intersection
- * @param howFar % along leg
- * @returns {google.maps.LatLng}
- */
-function createWaypoint(i, j, howFar) {
-	var intLength = savedIntersections[i][j].path.length, totalDist = 0, distances = [], runningDist = 0;
-	for (var k = intLength - 2; k > -1; k--) {
-		var tempsq = distance( savedIntersections[i][j].path[k], savedIntersections[i][j].path[k + 1] );
-		distances.push(tempsq);
-		totalDist += tempsq;
-	}
-	while (runningDist + distances[distances.length - 1] < totalDist * howFar) {
-		runningDist += distances.pop();
-	}
-	var linePer = (totalDist * howFar - runningDist) / distances[distances.length - 1];
-	if (intLength - 1 != distances.length) {
-		intLength = distances.length + 2;
-	}
-	var tempy = ( savedIntersections[i][j].path[intLength - 1].lat() - savedIntersections[i][j].path[intLength - 2].lat() )
-				* linePer + savedIntersections[i][j].path[intLength - 2].lat();
-	var tempx = ( savedIntersections[i][j].path[intLength - 1].lng() - savedIntersections[i][j].path[intLength - 2].lng() )
-				* linePer + savedIntersections[i][j].path[intLength - 2].lng();
-	return new google.maps.LatLng(tempy, tempx);
-}
-
-/**
- * @param oid of street to look for
- * @returns {Boolean} true if found to have already been tested
- */
-function findOid(oid) {
-	for (var i = 0, ii = testedObjectIds.length; i < ii; i++) {
-		if (oid == testedObjectIds[i]) {
-			return true;
-		}
-	}
-	return false;
-}
-
-/**
- * @param intersection to be sorted
- * @returns intersection sorted by closeness
- */
-function rankStreets(intersection) {
-	var ranker = [];
-	var sortedIntersection = [];
-	for (var i = 0, ii = intersection.length; i < ii; i++) {
-		ranker.push(i);
-	}
-	while (ranker.length != 0) {
-		var best=8, index = 0, rankIndex = 0;
-		for (var i = 0, ii = ranker.length; i < ii; i++) {
-			if (best > intersection[ranker[i]].closeness) {
-				best = intersection[ranker[i]].closeness;
-				index = ranker[i];
-				rankIndex = i;
+			else if( status == google.maps.DirectionsStatus.OVER_QUERY_LIMIT ){
+				console.log("calling too fast");
+				window.setTimeout(function(){callNewRoute.apply(null, this);}.bind(arguments), 1000);
 			}
-		}
-		sortedIntersection.push(intersection[index]);
-		ranker.splice(rankIndex, 1);
+			else {
+				console.log("bad directions");
+				if( !doBackup ){
+					if(debug){placeRoute(wayPoints);}
+					testIntersection(index, counter, routeSlope, savedBoxLength, i + 1);
+				}
+			}
+		});
 	}
-	return sortedIntersection;
-}
-
-/**
- * @param start {LatLng}
- * @param stop {LatLng}
- * @returns distance between LatLngs
- */
-function distance(start, stop) {
-	return Math.sqrt( Math.pow(stop.lat() - start.lat(), 2) + Math.pow(stop.lng() - start.lng(), 2) );
 }
 
 /** Remove a box from boxList, clean up what is needed, and look for the next intersection to use for rerouting
@@ -10230,25 +10075,26 @@ function distance(start, stop) {
  * @param counter
  * @param savedBoxLength
  */
-function removeFromBoxList(routeSlope, sideStep, counter, savedBoxLength) {
-	if (boxList.length > tollerance) {
-		var tempBox = boxList.pop();
-		if( !sideStep && tempBox && tempBox.index != routeSlope.index ) {
-			routeSlope = getRouteSlope(tempBox.index);
-		}
-		for (var j = 0, jj = wayPointsBox.length; j < jj; j++) {
-			if (wayPointsBox[j].x == tempBox.box.x && wayPointsBox[j].y == tempBox.box.y) {
-				backupUsed = true;
-				wayPoints.pop();
-				wayPointsBox.pop();
-				var temp = wayThereList.pop();
-				savedIntersections[temp.x][temp.y].wayThere = false;
-				checkPoints--;
-				if(debug){console.log("checkpoint count is "+checkPoints);}
-				break;
+function removeFromBoxList(routeSlope, sideStep, counter, savedBoxLength){
+	if( boxList.length > tollerance ){
+			var tempBox = boxList.pop();
+			if( !sideStep && tempBox && tempBox.index != routeSlope.index ){
+				routeSlope = getRouteSlope(tempBox.index);
 			}
-		}
-		getIntersection(null, boxList.length - 1, routeSlope, sideStep, counter, savedBoxLength);
+			for( var j = 0, jj = wayPointsBox.length; j < jj; j++ ){
+				if( wayPointsBox[j].x == tempBox.box.x && wayPointsBox[j].y == tempBox.box.y ){
+					backupUsed = true;
+					wayPoints.pop();
+					wayPointsBox.pop();
+					var temp = wayThereList.pop();
+					savedIntersections[temp.x][temp.y].wayThere = false;
+					//checkPoints--;
+					if(debug){console.log("checkpoint count is "+checkPoints);}
+					break;
+				}
+			}
+			getIntersection(null, boxList.length - 1, routeSlope, sideStep, counter, savedBoxLength);
+		//}
 	}
 	else {
 		showSteps(savedResult);
@@ -10263,28 +10109,27 @@ function removeFromBoxList(routeSlope, sideStep, counter, savedBoxLength) {
  * @param counter to send to orderIntersection
  * @param savedBoxLength (number) to cut boxList back to if too many sidesteps
  */
-function getIntersection(box, index, routeSlope, sideStep, counter, savedBoxLength) {
+function getIntersection(box, index, routeSlope, sideStep, counter, savedBoxLength){
 	//create boxindex to check against boxlist
 	var currentBox, boxIndex, alreadyChecked = false;
-	if (box == null) {
+	if( box == null ){
 		currentBox = getBox(boxList[index].box);
 		boxIndex = boxList[index].box;
-		if ( interArray[ boxList[index].box.x ][ boxList[index].box.y ] ){
+		if( interArray[ boxList[index].box.x ][ boxList[index].box.y ] ){
 			alreadyChecked = true;
 		}
 	}
 	else {
 		currentBox = getBox(box);
 		boxIndex = box;
-		if ( interArray[box.x][box.y]) {
+		if( interArray[box.x][box.y] ){
 			alreadyChecked = true;
 		}
 	}
 	//check if route
-	//if(debug){console.log('alreadyChecked is '+alreadyChecked+' for '+index);}
-	if (alreadyChecked) {
-		for (var j = 0, jj = intersectionBoxListIndex.length; j < jj; j++) {
-			if (intersectionBoxListIndex[j].x == boxIndex.x && intersectionBoxListIndex[j].y == boxIndex.y) {
+	if( alreadyChecked ){
+		for( var j = 0, jj = intersectionBoxListIndex.length; j < jj; j++ ){
+			if( intersectionBoxListIndex[j].x == boxIndex.x && intersectionBoxListIndex[j].y == boxIndex.y ){
 				orderIntersections(
 					{
 						intersection: savedIntersections[j],
@@ -10312,22 +10157,22 @@ function getIntersection(box, index, routeSlope, sideStep, counter, savedBoxLeng
 				 + swMeters.x + "%2C" + swMeters.y + "%2C" + neMeters.x + "%2C" + neMeters.y
 				 + "&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&objectIds=&where=&time=&returnCountOnly=false&returnIdsOnly=false&returnGeometry=true&maxAllowableOffset=&outSR=&outFields=OBJECTID%2CSTREET_NAME&f=pjson",
 			success: function(data) {
-				if(data.features !== undefined && data.features.length) {
-					$.each(data.features, function(k, feature) {
+				if( data.features !== undefined && data.features.length ){
+					$.each(data.features, function(k, feature){
 						var tempStreet = {
 							startX: feature.geometry.paths[0][0][0],
 							startY: feature.geometry.paths[0][0][1],
 							endX: feature.geometry.paths[0][ feature.geometry.paths[0].length - 1 ][0],
 							endY: feature.geometry.paths[0][ feature.geometry.paths[0].length - 1 ][1],
 						};
-						if ( tempStreet.startX >= swMeters.x && tempStreet.startX < neMeters.x && 
-							 tempStreet.startY >= swMeters.y && tempStreet.startY < neMeters.y ) {
+						if( tempStreet.startX >= swMeters.x && tempStreet.startX < neMeters.x && 
+							tempStreet.startY >= swMeters.y && tempStreet.startY < neMeters.y ){
 							var path = [];
-							for (var k = 0, kk = feature.geometry.paths[0].length; k < kk; k++) {
-								var pathDegree = convertToDegrees(feature.geometry.paths[0][k][0], feature.geometry.paths[0][k][1]);
+							feature.geometry.paths[0].forEach(function(geoPath, index, array){
+								var pathDegree = convertToDegrees(geoPath[0], geoPath[1]);
 								path.push( new google.maps.LatLng(pathDegree.y, pathDegree.x) );
-							}
-							if( !checkForDuplicatePaths(section, path) ) {
+							});
+							if( !checkForDuplicatePaths(section, path) ){
 								section.push({
 									path: path,
 									oId: feature.attributes.OBJECTID,
@@ -10340,14 +10185,14 @@ function getIntersection(box, index, routeSlope, sideStep, counter, savedBoxLeng
 								});
 							}
 						}
-						else if ( tempStreet.endX >= swMeters.x && tempStreet.endX<neMeters.x && 
-								  tempStreet.endY >= swMeters.y && tempStreet.endY < neMeters.y) {
+						else if( tempStreet.endX >= swMeters.x && tempStreet.endX<neMeters.x && 
+								 tempStreet.endY >= swMeters.y && tempStreet.endY < neMeters.y ){
 							var path = [], k = feature.geometry.paths[0].length;
-							while (k--) {
+							while( k-- ){
 								var pathDegree = convertToDegrees(feature.geometry.paths[0][k][0], feature.geometry.paths[0][k][1]);
 								path.push( new google.maps.LatLng(pathDegree.y, pathDegree.x) );
 							}
-							if( !checkForDuplicatePaths(section, path) ) {
+							if( !checkForDuplicatePaths(section, path) ){
 								section.push({
 									path: path,
 									mPath: feature.geometry.paths[0],
@@ -10364,7 +10209,7 @@ function getIntersection(box, index, routeSlope, sideStep, counter, savedBoxLeng
 							//push to tested 
 						}
 					});
-					if (section.length == 0) {
+					if( section.length == 0 ){
 						removeFromBoxList(routeSlope, sideStep, counter, savedBoxLength);
 					}
 					else {
@@ -10394,186 +10239,373 @@ function getIntersection(box, index, routeSlope, sideStep, counter, savedBoxLeng
 	}
 }
 
-/**
- * @param start LatLng
- * @param end LatLng
- * @returns {slope} of line between start & end
- */
-function getSlope(start, end) {
-   	var rise = end.lat() - start.lat(), run = end.lng() - start.lng();
-	var north = true, east = true; //direction north or east
-	if (rise < 0) {
-		north = false;
-	}
-	if (run == 0) {
-		return new slope(1000, north, east);
-	}
-	else if (run < 0) {
-		east = false;
-	}
-	return new slope(rise / run, north, east);
-}
-
-/** Location of points and distance between them is estimated by placing them
- * in boxes that make a checkerboard of the map and comparing indexes instead
- * @param point (LatLng)
- * @returns {LatLngBounds} box that point is located in
- */
-function getBounds(point) {
-	var latBox = point.lat() * coordsMultiplier, lngBox = point.lng() * coordsMultiplier;
-	var north, south, east, west;
-	//this only works for positive lats and positive lngs
-	if (Math.round(latBox) > latBox) {
-		north = Math.round(latBox) / coordsMultiplier;
-		south = (Math.round(latBox) - 1) / coordsMultiplier;
-	}
-	else {
-		south = Math.round(latBox) / coordsMultiplier;
-		north = (Math.round(latBox) + 1) / coordsMultiplier;
-	}
-	if (Math.round(lngBox) > lngBox) {
-		east = Math.round(lngBox) / coordsMultiplier;
-		west = (Math.round(lngBox) - 1) / coordsMultiplier;
-	}
-	else {
-		west = Math.round(lngBox) / coordsMultiplier;
-		east = (Math.round(lngBox) + 1) / coordsMultiplier;
-	}
-	return new google.maps.LatLngBounds( new google.maps.LatLng(south, west), new google.maps.LatLng(north, east) );
-}
-
 /** Returns the direction that the route leaves bounds, or null if it doesn't
  * @param start (LatLng) 
  * @param end (LatLng)
  * @param slope {slope} from start to end
- * @param index of myRoute
+ * @param routeSlope of current direction leg
  * @param bounds (LatLngBounds) to find the escape of
  * @param add true to add the box to the list
  * @returns {String} direction of escape
  */
-function escapeCheck(start, end, slope, index, bounds, add) {
-		var escape = "", enter = "";
-		var box = {
-			neLat: bounds.getNorthEast().lat(),
-			neLng: bounds.getNorthEast().lng(),
-			swLat: bounds.getSouthWest().lat(),
-			swLng: bounds.getSouthWest().lng()
-		};
-		//var startPoint = new xy(step.start_location.lng(),step.start_location.lat());
-		var startPoint = new xy( start.lng(), start.lat() );
-		//var endPoint = new xy(step.end_location.lng(),step.end_location.lat());
-		var endPoint = new xy( end.lng(), end.lat() );
-		if (slope.north == true) {
-			//check if end is between west and east bounds
-			var tester = (box.neLat - startPoint.y) / slope.slope + startPoint.x;
-			if (tester >= box.swLng && tester < box.neLng) { //check if end is in current box
-				escape = (endPoint.y < box.neLat ? null : "north");
+function escapeCheck(start, end, slope, routeSlope, bounds, add){
+	var escape = "", enter = "";
+	var box = {
+		neLat: bounds.getNorthEast().lat(),
+		neLng: bounds.getNorthEast().lng(),
+		swLat: bounds.getSouthWest().lat(),
+		swLng: bounds.getSouthWest().lng()
+	};
+	//var startPoint = new xy(step.start_location.lng(),step.start_location.lat());
+	var startPoint = new xy( start.lng(), start.lat() );
+	//var endPoint = new xy(step.end_location.lng(),step.end_location.lat());
+	var endPoint = new xy( end.lng(), end.lat() );
+	if( slope.north == true ){
+		//check if end is between west and east bounds
+		var tester = (box.neLat - startPoint.y) / slope.slope + startPoint.x;
+		if( tester >= box.swLng && tester < box.neLng ){ //check if end is in current box
+			escape = (endPoint.y < box.neLat ? null : "north");
+		}
+		else {//check if escape is east or west
+			if( slope.east == true ){ //check if end is in current box
+				escape = (endPoint.x < box.neLng ? null : "east");
 			}
-			else {//check if escape is east or west
-				if (slope.east == true) { //check if end is in current box
-					escape = (endPoint.x < box.neLng ? null : "east");
-				}
-				else { //check if end is in current box
-					escape = (endPoint.x >= box.swLng ? null : "west");
-				}
+			else { //check if end is in current box
+				escape = (endPoint.x >= box.swLng ? null : "west");
 			}
 		}
-		else if (slope.slope == 0) { //0 case, no need to test y
-			if (endPoint.x >= box.swLng && endPoint.x < box.neLng) {
-				escape = null;
-			}	
+	}
+	else if( slope.slope == 0 ){ //0 case, no need to test y
+		if( endPoint.x >= box.swLng && endPoint.x < box.neLng ){
+			escape = null;
+		}	
+		else {
+			escape = (slope.east == true ? "east" : "west");
+		}
+	}
+	else {//check if end is between west and east bounds
+		var tester = (box.swLat - startPoint.y) / slope.slope + startPoint.x;
+		if( tester >= box.swLng && tester < box.neLng ){ //check if end is in current box
+			escape = (endPoint.y >= box.swLat ? null : "south");
+		}
+		else {//check if escape is east or west
+			if( slope.east == true ){ //check if end is in current box
+				escape = (endPoint.x < box.neLng ? null : "east");
+			}
+			else { //check if end is in current box
+				escape = (endPoint.x >= box.swLng ? null : "west");
+			}
+		}
+	}
+	var directions = new Array("west", "east", "north", "south");
+	for( var i = 0; i < directions.length; i++ ){
+		if( directions[i] == escape || directions[i] == enter ){
+			directions.splice(i, 1);
+		}
+	}
+	if( add ){ //Puts box coordinates in global array of boxes
+		var surroundBox = getCoords(bounds);
+		if( !boxCheck(surroundBox) ){
+			if( boxList.length > 0 &&
+					( Math.abs( boxList[boxList.length - 1].box.x - surroundBox.x ) > 1 || 
+					  Math.abs( boxList[boxList.length - 1].box.y - surroundBox.y ) > 1 ) ){
+				console.log('this shouldnt happen');
+			}
+			boxList.push({
+				box: surroundBox,
+				index: routeSlope.index
+			});
+			//var boxListLength = boxList.length;
+			var boxListLength = boxList.length - 1,
+				drivingTestLength = drivingTest.length - 1;
+			//if( driving && drivingBoxList.length > boxListLength ){ //check that it didn't deviate from last route
+			if( driving && drivingTestLength >= 0 ){
+				//if( drivingBoxList[boxListLength - 1].box.x != boxList[boxListLength - 1].box.x || drivingBoxList[boxListLength - 1].box.y != boxList[boxListLength - 1].box.y ){ // deviating from previous route
+				if( boxList[boxListLength].box.x == drivingTest[drivingTestLength].x && boxList[boxListLength].box.y == drivingTest[drivingTestLength].y ){
+					for( var i = 0; i <= drivingTestLength; i++ ){
+						if( Math.abs( boxList[boxListLength - i].box.x - drivingTest[drivingTestLength - i].x ) > 1 
+								|| Math.abs( boxList[boxListLength - i].box.y != drivingTest[drivingTestLength - i].y ) > 1 ){
+							boxList = [];
+							drivingBoxList.forEach(function(drivingBox){
+								boxList.push({
+									box: new xy(drivingBox.box.x, drivingBox.box.y),
+									index: drivingBox.index
+								});
+							});
+							if( addBackupWayPoint() ){
+								return false;
+							}
+							drivingBoxList = [];
+							wayPoints.pop();
+							request.waypoints = wayPoints;
+							drivingResume = true;
+							window.setTimeout(function(){callNewRoute();}, 150);
+							return false;
+						}
+					}
+					
+					
+				}
+			}
 			else {
-				escape = (slope.east == true ? "east" : "west");
+				drivingBoxList = [];
 			}
 		}
-		else {//check if end is between west and east bounds
-			var tester = (box.swLat - startPoint.y) / slope.slope + startPoint.x;
-			if (tester >= box.swLng && tester < box.neLng) { //check if end is in current box
-				escape = (endPoint.y >= box.swLat ? null : "south");
-			}
-			else {//check if escape is east or west
-				if (slope.east == true) { //check if end is in current box
-					escape = (endPoint.x < box.neLng ? null : "east");
-				}
-				else { //check if end is in current box
-					escape = (endPoint.x >= box.swLng ? null : "west");
-				}
-			}
-		}
-		var directions = new Array("west", "east", "north", "south");
-		for (var i = 0; i < directions.length; i++) {
-			if (directions[i] == escape || directions[i] == enter){
-				directions.splice(i, 1);
-			}
-		}
-		if (add) { //Puts box coordinates in global array of boxes
-			var surroundBox = getCoords(bounds);
-			if ( !boxCheck(surroundBox) ) {
-				boxList.push({
-					box: surroundBox,
-					index: index
-				});
-			}
-		}
-		return escape;
 	}
-
-/** Takes in google box, and returns indexes of which box (on my checkerboard) it's in
- * @param box (LatLngBounds)
- * @returns {coordinates} of box
- */
-function getCoords(box) {
-	var lat = Math.round( (box.getSouthWest().lat() - originIndex.y) * coordsMultiplier );
-	var lng = Math.round( (box.getSouthWest().lng() - originIndex.x) * coordsMultiplier );
-	return new xy(lng, lat);
+	return escape;
 }
-	
+
+/** Draws all circles using circleOptions[] and weighs lngArray raster, then calls showSteps to start testing route */
+function drawCircles(response){
+	circleOptions.forEach(function(circleOption, index){
+		var circle = new google.maps.Circle(circleOption);
+		circles.push(circle);
+		crimeWeight( circle, weighter(crimes[index].type) );
+		//crimeMapWeight( circleOption, weighter(crimes[index].type) );
+	});
+	circleOptions = [], crimes = [];
+	rends.setMap(map);
+	rends.setDirections(response);
+	rends.setPanel( document.getElementById("directionsPanel") );
+	rends.setRouteIndex(0);
+	rends.setOptions( {draggable: true} );
+	savedResult = response.routes[0];
+	if( autoRoute ){		
+		showSteps(savedResult);
+	}
+}
+
+
+
+/*
+ * Functions that are done when returning
+ */
+
+/** Clear map and all related variables */
+function clearer(){
+	clearOverlays();
+	boxList = [];
+	wayPoints = [];
+	backupWayPoints = [];
+	wayPointsBox = [];
+	wayThereList = [];
+	intersectionBoxListIndex = [];
+	savedIntersections = [];
+	testedObjectIds = [];
+	directionCalls = 0;
+	checkPoints = 0;
+	wayCounter = 0;
+	bestRoute = {};
+	closestSaveDistance = 10000;
+	savedStart = null;
+	savedEnd = null;
+	cleanedArray = [];
+	drivingTestArguments = [];
+}
+
+/** Draws streets of passed intersection
+ * @param intersection 
+ */
+function drawLines(intersection){
+	intersection.forEach(function(street){
+		if( street.path != null ){
+			var color;
+			var weight = 2;
+			if( street.backward ){
+				color = "red";
+			}
+			else if( street.tested ){
+				color = "blue";
+			}
+			else if( street.closeness >= half ){
+				color = "orange";
+				weight = 4;
+			}
+			else if( street.wayThere ){
+				color = "yellow";
+			}
+			else {
+				color = "green";
+			}
+			var lineOption = {
+				path: street.path,
+				strokeColor: color,
+				strokeOpacity: 1.0,
+				strokeWeight: weight
+			};
+			var line = new google.maps.Polyline(lineOption);
+			line.setMap(map);
+			lines.push(line);
+		}
+	});
+}
+
+/** Saves current route to bestRoute if it is closest to destination than any previous tries
+ * @param box of current location
+ */
+function saveClosestRoute(box){
+	var closestPoint = getCoords(box);
+	endPoint = getBoundIndex(end);
+	var testDistance = Math.sqrt( Math.pow(endPoint.x - closestPoint.x, 2) + Math.pow(endPoint.y - closestPoint.y, 2) );
+	//console.log('test distance is '+testDistance);
+	if( testDistance < closestSaveDistance ){
+		closestSaveDistance = testDistance;
+		//console.log('closest is '+closestSaveDistance+' and call count is '+directionCalls);
+		bestRoute = {
+			origin: request.origin,
+			destination: request.destination,
+			travelMode: request.travelMode,
+			provideRouteAlternatives: false,
+			waypoints: request.waypoints
+		};
+	}
+}
+
+/** Removes checkPoints # of waypoints, using wayTest to reference */
+function removeWays(){
+	if( wayPoints.length >= checkPoints ){
+		for( var i = 0; i < checkPoints; i++ ){
+			wayPoints.pop();
+			wayPointsBox.pop();
+			var temp = wayThereList.pop();
+			savedIntersections[temp.x][temp.y].wayThere = false;
+		}
+	}
+}
+
+/** Looks to see if any waypoints are in checkbox, removes them if they are
+ * @param checkBox box to look for waypoints in
+ * @returns if going the wrong way
+ */ 
+function checkForWaypoints(checkBox){
+	if(debug){console.log('checkpoints is '+checkPoints);}
+	wayPointsBox.forEach(function(wpBox, i){
+		if( wayTest[i] ){
+			if( wpBox.x == checkBox.x && wpBox.y == checkBox.y ){
+				wayTest[i] = false;
+				checkPoints--;
+			}
+		}
+	});
+}
+
+/** Clears an intersection after it's no longer needed
+ * @param i index of intersection
+ * @param j index of street within i intersection
+ */
+function clearInter(i,j){
+	savedIntersections[i][j].path = null;
+	savedIntersections[i][j].stName = null;
+	savedIntersections[i][j].closeness = null;
+	savedIntersections[i][j].slope = null;
+	savedIntersections[i][j].tested = true;
+}
+
+/** Creates waypoint to be used for adjusting the route when it doesn't go where expected
+ * @param index of savedIntersections
+ * @param j index of street in savedIntersections[index]
+ */
+function createBackupWayPoint(index, j){
+	var wayPoint = createWaypoint(index, j, .5);
+	var wayPointObject = {location: wayPoint};
+	if( driving ){
+		wayPointObject.stopover = false;
+	}
+	backupWayPoints.push( wayPointObject );
+	backupUsed = false;
+	if(debug){console.log("backupUsed is " + backupUsed);}
+	backPlace = wayPoints.length;
+	if(debug){console.log("backPlace set as " + backPlace);}
+	backxy = new xy(index, j);
+}
+
 /**
- * @param coords
- * @returns {Boolean} if coords are in boxList
+ * Google geocoded waypoints might be different than what is saved, 
+ * if they aren't updated, they might be missed when trying to remove them
  */
-function boxCheck(coords) {
-	for (var i = 0, ii = boxList.length; i < ii; i++) {
-		if (coords.y == boxList[i].box.y && coords.x == boxList[i].box.x) {
-			return true;
+function updateWaypoints(){
+	var legIndex = 0, legLength = savedResult.legs.length;
+	for( var wayPointIndex = 0, ii = wayPoints.length; wayPointIndex < ii; wayPointIndex++ ){
+		for( ; legIndex < legLength; legIndex++ ){
+			for( var viaWaypointIndex = 0, viaWaypointLength = savedResult.legs[legIndex].via_waypoints.length; viaWaypointIndex < viaWaypointLength; viaWaypointIndex++ ){
+				wayPoints[wayPointIndex].location = new google.maps.LatLng( savedResult.legs[legIndex].via_waypoints[viaWaypointIndex].lat(),
+																			savedResult.legs[legIndex].via_waypoints[viaWaypointIndex].lng() );
+				wayPointsBox[wayPointIndex] = getBoundIndex(wayPoints[wayPointIndex].location);
+				wayPointIndex++;
+				if( wayPointIndex == ii ){
+					return;
+				}
+			}
+			if( viaWaypointLength == 0 ){
+				//end is waypoint
+				wayPoints[wayPointIndex].location = new google.maps.LatLng( savedResult.legs[legIndex].end_location.lat(),
+																			savedResult.legs[legIndex].end_location.lng() );
+				wayPointsBox[wayPointIndex] = getBoundIndex(wayPoints[wayPointIndex].location);
+				legIndex++;
+				break;
+			}
 		}
-	}
-	return false;
-}
-	
-/** Returns bounds of next rectangle that route goes through
- * @param direction
- * @param box (coordinates)
- * @returns {LatLngBounds}
- */
-function nextRect(direction, box) {
-	var coords = getCoords(box);
-	var north = coords.y + 1, south = coords.y, west = coords.x, east = coords.x + 1;
-	if (direction == "west") { //add one to lng to move west
-		west = (west - 1 + originCoords.x) / coordsMultiplier, east = (east - 1 + originCoords.x) / coordsMultiplier;
-		north = (north + originCoords.y) / coordsMultiplier, south = (south + originCoords.y) / coordsMultiplier;
-		return new google.maps.LatLngBounds( new google.maps.LatLng(south, west), new google.maps.LatLng(north, east) );
-	}
-	else if (direction == "east") { //subtract one to lng to move east
-		west = (west + 1 + originCoords.x) / coordsMultiplier, east = (east + 1 + originCoords.x) / coordsMultiplier;
-		north = (north + originCoords.y) / coordsMultiplier, south = (south + originCoords.y) / coordsMultiplier;
-		return new google.maps.LatLngBounds( new google.maps.LatLng(south, west), new google.maps.LatLng(north, east) );
-	}
-	else if (direction == "south") { //subtract one to lat to move south
-		north = (north - 1 + originCoords.y) / coordsMultiplier, south = (south - 1 + originCoords.y) / coordsMultiplier;
-		west = (west + originCoords.x) / coordsMultiplier, east = (east + originCoords.x) / coordsMultiplier;
-		return new google.maps.LatLngBounds( new google.maps.LatLng(south, west), new google.maps.LatLng(north, east) );
-	}
-	else { //add one to lat to move north
-		north = (north + 1 + originCoords.y) / coordsMultiplier, south = (south + 1 + originCoords.y) / coordsMultiplier;
-		west = (west + originCoords.x) / coordsMultiplier, east = (east + originCoords.x) / coordsMultiplier;
-		return new google.maps.LatLngBounds( new google.maps.LatLng(south, west), new google.maps.LatLng(north, east) );
 	}
 }
 
-/** Draws all rectangles in boxList[] */
-function drawRects() {
-	for (var i = 0, ii = boxList.length; i < ii; i++) {
+/** Adds LatLng to route waypoints list, and sets variables for that location
+ * @param i index of intersection that waypoint is in
+ * @param j leg of intersection that waypoint is in
+ * @param wayPoint {LatLng} of point to be added
+ */
+function addWaypoint(i, j, wayPoint){
+	var wayPointObject = {location: wayPoint};
+	if( driving ){
+		wayPointObject.stopover = false;
+	}
+	wayPoints.push(wayPointObject);
+	checkPoints = wayPoints.length;
+	if(debug){console.log("checkpoint count is "+checkPoints);}
+	savedIntersections[i][j].wayThere = true; //set it as being in the right direction in case we return to this intersection later
+	testedObjectIds.push(savedIntersections[i][j].oId); 
+	wayThereList.push( new xy(i, j) );
+	wayPointsBox.push( getBoundIndex(wayPoint) );
+	testReset();
+}
+
+/** Resets wayTest helper variable */
+function testReset(){
+	wayTest = [];
+	wayPoints.forEach(function(){
+		wayTest.push(true);
+	});
+}
+
+/** 
+ * @param i index in savedIntersections
+ * @param j leg of ith intersection
+ * @param howFar % along leg
+ * @returns {google.maps.LatLng}
+ */
+function createWaypoint(i, j, howFar){
+	var intLength = savedIntersections[i][j].path.length, totalDist = 0, distances = [], runningDist = 0;
+	for( var k = intLength - 2; k > -1; k-- ){
+		var tempsq = distance( savedIntersections[i][j].path[k], savedIntersections[i][j].path[k + 1] );
+		distances.push(tempsq);
+		totalDist += tempsq;
+	}
+	while( runningDist + distances[distances.length - 1] < totalDist * howFar ){
+		runningDist += distances.pop();
+	}
+	var linePer = (totalDist * howFar - runningDist) / distances[distances.length - 1];
+	if( intLength - 1 != distances.length ){
+		intLength = distances.length + 2;
+	}
+	var tempy = ( savedIntersections[i][j].path[intLength - 1].lat() - savedIntersections[i][j].path[intLength - 2].lat() )
+				* linePer + savedIntersections[i][j].path[intLength - 2].lat();
+	var tempx = ( savedIntersections[i][j].path[intLength - 1].lng() - savedIntersections[i][j].path[intLength - 2].lng() )
+				* linePer + savedIntersections[i][j].path[intLength - 2].lng();
+	return new google.maps.LatLng(tempy, tempx);
+}
+
+/** Draws all rectangles in list */
+function drawRects(list){
+	list.forEach(function(box){
 		var rectangle = new google.maps.Rectangle();
 		var rectOptions = {
 			strokeColor: colors[colorIndex],
@@ -10582,81 +10614,26 @@ function drawRects() {
 			fillColor: colors[colorIndex],
 			fillOpacity: 0.15,
 			map: map,
-			bounds: getBox(boxList[i].box)
+			bounds: getBox(box.box)
 		};
 		rectangle.setOptions(rectOptions);
 		overlays.push(rectangle);
-	}
-}
-
-/** 
- * @param coords from boxList[] 
- * @returns {google.maps.LatLngBounds} using SW corner returned from getCoords
- */
-function getBox(coords) {
-	var south = (coords.y + originCoords.y) / coordsMultiplier, north = (coords.y + 1 + originCoords.y) / coordsMultiplier;
-	var east = (coords.x + 1 + originCoords.x) / coordsMultiplier, west = (coords.x + originCoords.x) / coordsMultiplier;
-	return new google.maps.LatLngBounds( new google.maps.LatLng(south, west), new google.maps.LatLng(north, east) );
-}
-    
-/** Converts from degrees to meters
- * @param lat geocoded latitude
- * @param lng geocoded longitude
- * @returns x,y in meters
- */
-function convertToMeters(lat, lng) {
-	return new xy( (lng + lngDegreeOffset) * lngConvert - lngMeterOffset, (lat - latDegreeOffset) * latConvert + latMeterOffset );
-}
-
-/** Converts from meters to degrees
- * @param x longitude in meters
- * @param y latitude in meters
- * @returns {google.maps.Point}
- */
-function convertToDegrees(x, y) {
-	return new google.maps.Point( (x + lngMeterOffset) / lngConvert - lngDegreeOffset, (y - latMeterOffset) / latConvert + latDegreeOffset );
-}
- 
-/** Takes in google point and returns index of where it is on checkerboard
- * @param newPoint (LatLng)
- * @returns location of newPoint in lngArray
- */
-function getBoundIndex(newPoint) {
-	var newPointBounds = getBounds(newPoint);
-	return new xy( Math.round( (newPointBounds.getSouthWest().lng() - indexingOrigin.getSouthWest().lng() ) * coordsMultiplier ), 
-				   Math.round( (newPointBounds.getSouthWest().lat() - indexingOrigin.getSouthWest().lat() ) * coordsMultiplier ) );
-}
-
-/** Draws all circles using circleOptions[] and weighs lngArray raster, then calls showSteps to start testing route */
-function drawCircles(response) {
-	for (var i = 0, ii = circleOptions.length; i < ii; i++) {
-		var circle = new google.maps.Circle(circleOptions[i]);
-		circles.push(circle);
-		crimeWeight( circle, weighter(crimes[i].type) );
-	}
-	circleOptions = [], crimes = [];
-	rends.setMap(map);
-	rends.setDirections(response);
-	rends.setPanel( document.getElementById("directionsPanel") );
-	rends.setRouteIndex(0);
-	rends.setOptions( {draggable: true} );
-	savedResult = response.routes[0];
-	showSteps(savedResult);
+	});
 }
 
 /**
- * @param ucr (crime type code)
- * @returns {Number} (weight of crime type)
+ * @param circle to be added to lngArray raster
+ * @param weight of circle being added
  */
-function weighter(ucr) {
-	switch (ucr) {
-		case 700: return 1; //recovered or stolen vehicle
-		case 600: return 2; //theft or theft from vehicle
-		case 500: return 4; //residential or commercial burglary
-		case 400: return 7; //assault with firearms
-		case 300: return 5; //robbery without firearms
-		case 200: return 8; //rape
-		default: return 10; //homicide
+function crimeWeight(circle, weight){
+	var circleSw = circle.getBounds().getSouthWest(), circleNe = circle.getBounds().getNorthEast();
+	var low = getBoundIndex(circleSw), high = getBoundIndex(circleNe);
+	if( low.x < 0 || low.y < 0 || high.x < 0 || high.y < 0 ){return;}
+	if( low.x >= lngArray.length || low.y >= lngArray[0].length || high.x >= lngArray.length || high.y >= lngArray[0].length ){return;}
+	for( var i = low.x, ii = high.x + 1; i < ii; i++ ){
+		for( var j = low.y, jj = high.y + 1; j < jj; j++ ){
+			lngArray[i][j] += weight;
+		}
 	}
 }
 
@@ -10664,51 +10641,17 @@ function weighter(ucr) {
  * @param circle to be added to lngArray raster
  * @param weight of circle being added
  */
-function crimeWeight(circle, weight) {
-	var circleSw = circle.getBounds().getSouthWest(), circleNe = circle.getBounds().getNorthEast();
-	var low = getBoundIndex(circleSw), high = getBoundIndex(circleNe);
-	if (low.x < 0 || low.y < 0 || high.x < 0 || high.y < 0) {return;}
-	if (low.x >= lngArray.length || low.y >= lngArray[0].length || high.x >= lngArray.length || high.y >= lngArray[0].length) {return;}
-	for (var i = low.x, ii = high.x + 1; i < ii; i++) {
-		for (var j = low.y, jj = high.y + 1; j < jj; j++) {
-			lngArray[i][j] += weight;
+function crimeMapWeight(circleOption, weight){
+	var centerMeters = convertToMeters(circleOption.center.lat(), circleOption.center.lng());
+	var lowPoint = convertToDegrees(centerMeters.x - heatSide, centerMeters.y - heatSide), highPoint = convertToDegrees(centerMeters.x + heatSide, centerMeters.y + heatSide);
+	var low = getBoundIndex( new google.maps.LatLng(lowPoint.y, lowPoint.x) ), high = getBoundIndex( new google.maps.LatLng(highPoint.y, highPoint.x) );
+	if( low.x < 0 || low.y < 0 || high.x < 0 || high.y < 0 ){return;}
+	if( low.x >= heatArray.length || low.y >= heatArray[0].length || high.x >= heatArray.length || high.y >= heatArray[0].length ){return;}
+	for( var i = low.x, ii = high.x + 1; i < ii; i++ ){
+		for( var j = low.y, jj = high.y + 1; j < jj; j++ ){
+			heatArray[i][j] += weight;
 		}
 	}
-}
-
-/** Only used for debug
- * @param location wayPoints of route
- */
-function placeRoute(location) {
-	colorIndex++;
-	wayCounter++;
-	if (colorIndex == colors.length) {
-		colorIndex = 0;
-	}
-	var pointer = new google.maps.Point(9, 9);
-	var markerUrl = 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + wayCounter + '|' + colors[colorIndex];
-	for (var i = 0, ii = location.length; i < ii; i++) {
-		var foundMarker = false;
-		for (var j = 0, jj = routesArray.length; j < jj; j++) {
-			if ( routesArray[j].getPosition().equals( location[i].location ) ){
-				foundMarker = true;
-				break;
-			}
-		}
-		if ( !foundMarker ) {
-			var marker = new google.maps.Marker({
-				position: location[i].location,
-				map: map,
-				icon: {
-					url: markerUrl,
-					anchor: pointer
-				},
-				visible: true
-			});
-			routesArray.push(marker);
-		}
-	}
-	if(debug){console.log("placed");}
 }
 
 /** Places marker with icon of respective type crime and draws a circle around it with a size relative to the recency of the crime
@@ -10717,9 +10660,9 @@ function placeRoute(location) {
  * @param time of crime
  * @param date of crime
  */
-function placeMarker(location, UCR, time, date, carriedtitle) {
+function placeMarker(location, UCR, time, date, carriedtitle){
 	var color, image, title, pointer = new google.maps.Point(9, 9), timeTemplate = " @ " + time + ":00 " + date.toDateString();
-	switch (UCR) {
+	switch (UCR){
 		case '700':
 			image = {
 				url:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAVhJREFUOI3tk78rhHEYwD/Pe2+9SeEknSJlY0EUBhMGi/KrO0Upo2TUdQzidVnFoCwYziUMRhMZDPI3KCSDUzLcN933sRy9idxwC3mm53l6ns/T88ulyOL+A38hMI0fVej+cHhkgSyoaGnoeCwTvygYmGZ53KJT4oUWYiZ+nq5Mtmsm1xljfn2fZCRn7NUey20x5u+/BO6SrHA92+QYGhVaFfoduMPoXAp/0mZslSDVKfyWHLYEqAE5SrGy6qKXoyRu3HxbQwobYCMY0EARhQZQJOAT6AqYHYIe5oA9/LibT1oEIvmAR9AXkPofxvsuT0A4r/e6AOIxDdpjjTSDlgvOLdgbPDn9jiKGsMKIwozAGh5bYuTBBYiaxBlwdsBC2Ssl24qtdQhNRE38+jvgCTiP+HUCO8BszCQ24dNShll6BgYL6bMPLCQGACEw9mIcdnCHf+H1/h7wDQStcE8nHEi8AAAAAElFTkSuQmCC',
@@ -10783,7 +10726,7 @@ function placeMarker(location, UCR, time, date, carriedtitle) {
 			title: title,
 			visible: true
 	});
-	marker.addListener('click', function() {
+	marker.addListener('click', function(){
 		var thisCarriedTitle = carriedtitle;
 		var infoWindow = new google.maps.InfoWindow({
 		    content: thisCarriedTitle,
@@ -10807,41 +10750,41 @@ function placeMarker(location, UCR, time, date, carriedtitle) {
 }
 
 /** Clears all overlays on map */
-function clearOverlays() {
-	while (markersArray[0]) {
+function clearOverlays(){
+	while( markersArray[0] ){
 		markersArray.pop().setMap(null);
 	}
-	while (routesArray[0]) {
+	while( routesArray[0] ){
 		routesArray.pop().setMap(null);
 	}
-	while (overlays[0]) {
+	while( overlays[0] ){
 		overlays.pop().setMap(null);
 	}
-	while (circles[0]) {
+	while( circles[0] ){
 		circles.pop().setMap(null);
 		circleOptions.pop();
 	}
-	while (lines[0]) {
+	while( lines[0] ){
 		lines.pop().setMap(null);
 	}
 }
 
 /** Handles different time formats */
-function formatTime(timeToCheck) {
-	if (timeToCheck == '') {
+function formatTime(timeToCheck){
+	if( timeToCheck == '' ){
 		time.value = new Date().getHours(); 
 		return time.value;
 	}
 	var noPunct = timeToCheck.replace(/\W+/g, "")
 	var number = /^\d+/.exec(noPunct);
 	var words = /\D+/.exec(noPunct);
-	if (number) {
-		if (number < 13) {
-			if (words) {
-				if ( /am/i.exec(words) ) {
+	if( number ){
+		if( number < 13 ){
+			if( words ){
+				if( /am/i.exec(words) ){
 					return number % 12;
 				}
-				else if ( /pm/i.exec(words) ) {
+				else if( /pm/i.exec(words) ){
 					return number % 12 + 12;
 				}
 			}
@@ -10849,22 +10792,22 @@ function formatTime(timeToCheck) {
 				return number;
 			}
 		}
-		else if (number < 25) {
+		else if( number < 25 ){
 			return number;
 		}
-		else if (number < 1260) {
-			if (number[0].length > 2) {
+		else if( number < 1260 ){
+			if( number[0].length > 2 ){
 				var minutes = number % 100;
-				if (minutes < 60) {
+				if( minutes < 60 ){
 					var hours = (number - minutes) / 100;
-					if (minutes > 29) {
+					if( minutes > 29 ){
 						hours++;
 					}
-					if (words) {
-						if ( /am/i.exec(words) ){
+					if( words ){
+						if( /am/i.exec(words) ){
 							return hours % 12;
 						}
-						else if ( /pm/i.exec(words) ){
+						else if( /pm/i.exec(words) ){
 							return hours % 12 + 12;
 						}
 					}
@@ -10874,12 +10817,12 @@ function formatTime(timeToCheck) {
 				}
 			}
 		}
-		else if (number < 2360) {
-			if ( !words ) {
+		else if( number < 2360 ){
+			if( !words ){
 				var minutes = number % 100;
-				if (minutes < 60) {
+				if( minutes < 60 ){
 					var hours = (number - minutes) / 100;
-					if (minutes > 29) {
+					if( minutes > 29 ){
 						hours++;
 					}
 					return hours % 24;
@@ -10893,10 +10836,10 @@ function formatTime(timeToCheck) {
 }
 
 /** Is latLng in Wilmington? */
-function isInWilmington(latLngToCheck, startEnd) {
+function isInWilmington(latLngToCheck, startEnd){
 	var lngToCheck = latLngToCheck.lng(), latToCheck = latLngToCheck.lat();
-	if (lngToCheck > wilBoarders.e || lngToCheck < wilBoarders.w || latToCheck > wilBoarders.n || latToCheck < wilBoarders.s) {
-		if (startEnd) {
+	if( lngToCheck > wilBoarders.e || lngToCheck < wilBoarders.w || latToCheck > wilBoarders.n || latToCheck < wilBoarders.s ){
+		if( startEnd ){
 			startEnd.value = "Not in Wilmington";
 			startEnd.style.color = "red";
 		}
@@ -10905,33 +10848,422 @@ function isInWilmington(latLngToCheck, startEnd) {
 	return true;
 }
 
+/** Only used for debug
+ * @param location wayPoints of route
+ */
+function placeRoute(location){
+	colorIndex++;
+	wayCounter++;
+	if( colorIndex == colors.length ){
+		colorIndex = 0;
+	}
+	var pointer = new google.maps.Point(9, 9);
+	var markerUrl = 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + wayCounter + '|' + colors[colorIndex];
+	location.forEach(function(wayPoint){
+		var foundMarker = false;
+		for( var j = 0, jj = routesArray.length; j < jj; j++ ){
+			if( routesArray[j].getPosition().equals( wayPoint.location ) ){
+				foundMarker = true;
+				break;
+			}
+		}
+		if( !foundMarker ){
+			var marker = new google.maps.Marker({
+				position: wayPoint.location,
+				map: map,
+				icon: {
+					url: markerUrl,
+					anchor: pointer
+				},
+				visible: true
+			});
+			routesArray.push(marker);
+		}
+	});
+	if(debug){console.log("placed");}
+}
+
+function resolveHeatVars(){
+	var tempHeatThreshold = document.getElementById('numOfCrimes'), tempHeatSide = document.getElementById('distFromCrimes');
+	if( /^\d+/.exec(tempHeatThreshold.value) && !/\D+/.exec(tempHeatThreshold.value) ){
+		if( tempHeatThreshold.value > 5 ){
+			tempHeatThreshold.value = 5;
+		}
+		heatThreshold = ( Number(tempHeatThreshold.value) - 1 ) * 10;
+	}
+	else {
+		heatThreshold = 30;
+	}
+	if( /^\d+/.exec(tempHeatSide.value) && !/\D+/.exec(tempHeatSide.value) ){
+		if( tempHeatSide.value > 500 ){
+			tempHeatSide.value = 500;
+		}
+		heatSide = Number(tempHeatSide.value);
+	}
+	else {
+		heatSide = 100;
+	}
+}
+
+
+
+/* 
+ * Classes 
+ */
+
+/** Holds Crime data
+ * @param x lng in degrees
+ * @param y lat in degrees
+ * @param time hour of day
+ * @param type UCR_general
+ * @returns this
+ */
+function Crime(x, y, time, type){
+	this.x = x;
+	this.y = y;
+	this.time = time;
+	this.type = type;
+}
+
+/** Holds points
+ * @param x
+ * @param y
+ * @returns this
+ */
+function xy(x, y){
+	this.x = x;
+	this.y = y;
+}
+
+/**
+ * @param slope of line
+ * @param north if true, else south
+ * @param east if true, else west
+ * @returns this
+ */
+function slope(slope, north, east){
+	this.slope = slope;
+	this.north = north;
+	this.east = east;
+}
+
+
+
+/* 
+ * Pure Functions 
+ */
+
+/**
+ * @param index of myRoute array
+ * @returns slope:of index lastSlope:of previous array entry index: of myRoute array 
+ */
+function getRouteSlope(index){
+	var slope = getSlope(myRoute[index], myRoute[index + 1]);
+	var lastSlope;
+	if( index == 0 ){
+		lastSlope = 0;
+	}
+	else if( index == 1 ){
+		lastSlope = getSlope(myRoute[0], myRoute[1]);
+	}
+	else {
+		var j = index-1;
+		var k = distance(myRoute[j], myRoute[j + 1]);
+		/* Don't want a leg that's too short */
+		while( k < .0001 && --j ){
+			k = distance(myRoute[j], myRoute[j + 1]);
+		}
+		lastSlope = getSlope(myRoute[j], myRoute[j + 1]);
+	}
+	return {
+		slope: slope,
+		lastSlope: lastSlope,
+		index: index
+	};
+}
+
+/** Returns the radians between slopeToEnd and testSlope angles
+ * @param slopeToEnd
+ * @param overallTestSlope
+ * @param testSlope
+ * @returns radians between slopes
+ */
+function closenessCalculator(slopeToEnd, overallTestSlope, testSlope){
+	var slopeCompare = slopeToEnd.slope * overallTestSlope.slope;
+	if( slopeCompare > 0 ){//same quadrant
+		if( slopeToEnd.north == testSlope.north ){ //forward
+			return Math.abs( Math.atan( Math.abs(slopeToEnd.slope) ) - Math.atan( Math.abs(testSlope.slope) ) );
+		}
+		else { //backward
+			return Math.PI - Math.abs( Math.atan( Math.abs(slopeToEnd.slope) ) - Math.atan( Math.abs(testSlope.slope) ) );
+		}
+	}
+	else if( slopeCompare <= -1 ){//case 1 for different quadrants
+		if( slopeToEnd.north == testSlope.north && slopeToEnd.east != testSlope.east ){ //forward
+			return Math.PI - Math.atan( Math.abs(slopeToEnd.slope) ) - Math.atan( Math.abs(testSlope.slope) );
+		}
+		else { //backward
+			return Math.atan( Math.abs(slopeToEnd.slope) ) + Math.atan( Math.abs(testSlope.slope) );
+		}
+	}
+	else {//case 2 for different quadrants
+		if( slopeToEnd.north != testSlope.north && slopeToEnd.east == testSlope.east ){ //forward
+			return Math.atan( Math.abs(slopeToEnd.slope) ) + Math.atan( Math.abs(testSlope.slope) );
+		}
+		else { //backward
+			return Math.PI - Math.atan( Math.abs(slopeToEnd.slope) ) - Math.atan( Math.abs(testSlope.slope) );
+		}
+	}
+}
+
+/**
+ * @param bounds (LatLngBounds) to test for crimes in
+ * @returns crime weight of bounds
+ */
+function crimeTest(bounds){
+	var boxIndex = getCoords(bounds);
+	return lngArray[boxIndex.x][boxIndex.y];
+}
+
+/**
+ * @param oid of street to look for
+ * @returns {Boolean} true if found to have already been tested
+ */
+function findOid(oid){
+	for( var i = 0, ii = testedObjectIds.length; i < ii; i++ ){
+		if( oid == testedObjectIds[i] ){
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * @param intersection to be sorted
+ * @returns intersection sorted by closeness
+ */
+function rankStreets(intersection){
+	var ranker = [];
+	var sortedIntersection = [];
+	intersection.forEach(function(street, index){
+		ranker.push(index);
+	});
+	while( ranker.length != 0 ){
+		var best=8, index = 0, rankIndex = 0;
+		ranker.forEach(function(rank, rankIndex) {
+			if( best > intersection[rank].closeness ){
+				best = intersection[rank].closeness;
+				index = rank;
+				rankIndex = rankIndex;
+			}
+		});
+		sortedIntersection.push(intersection[index]);
+		ranker.splice(rankIndex, 1);
+	}
+	return sortedIntersection;
+}
+
+/**
+ * @param start {LatLng}
+ * @param stop {LatLng}
+ * @returns distance between LatLngs
+ */
+function distance(start, stop){
+	return Math.sqrt( Math.pow(stop.lat() - start.lat(), 2) + Math.pow(stop.lng() - start.lng(), 2) );
+}
+
+/**
+ * @param start LatLng
+ * @param end LatLng
+ * @returns {slope} of line between start & end
+ */
+function getSlope(start, end){
+   	var rise = end.lat() - start.lat(), run = end.lng() - start.lng();
+	var north = true, east = true; //direction north or east
+	if( rise < 0 ){
+		north = false;
+	}
+	if( run == 0 ){
+		return new slope(1000, north, east);
+	}
+	else if( run < 0 ){
+		east = false;
+	}
+	return new slope(rise / run, north, east);
+}
+
+/** Location of points and distance between them is estimated by placing them
+ * in boxes that make a checkerboard of the map and comparing indexes instead
+ * @param point (LatLng)
+ * @returns {LatLngBounds} box that point is located in
+ */
+function getBounds(point){
+	var latBox = point.lat() * coordsMultiplier, lngBox = point.lng() * coordsMultiplier;
+	var north, south, east, west;
+	//this only works for positive lats and positive lngs
+	if( Math.round(latBox) > latBox ){
+		north = Math.round(latBox) / coordsMultiplier;
+		south = (Math.round(latBox) - 1) / coordsMultiplier;
+	}
+	else {
+		south = Math.round(latBox) / coordsMultiplier;
+		north = (Math.round(latBox) + 1) / coordsMultiplier;
+	}
+	if( Math.round(lngBox) > lngBox ){
+		east = Math.round(lngBox) / coordsMultiplier;
+		west = (Math.round(lngBox) - 1) / coordsMultiplier;
+	}
+	else {
+		west = Math.round(lngBox) / coordsMultiplier;
+		east = (Math.round(lngBox) + 1) / coordsMultiplier;
+	}
+	return new google.maps.LatLngBounds( new google.maps.LatLng(south, west), new google.maps.LatLng(north, east) );
+}
+
+/** Takes in google box, and returns indexes of which box (on my checkerboard) it's in
+ * @param box (LatLngBounds)
+ * @returns {coordinates} of box
+ */
+function getCoords(box){
+	var lat = Math.round( (box.getSouthWest().lat() - originIndex.y) * coordsMultiplier );
+	var lng = Math.round( (box.getSouthWest().lng() - originIndex.x) * coordsMultiplier );
+	return new xy(lng, lat);
+}
+
+/**
+ * @param coords
+ * @returns {Boolean} if coords are in boxList
+ */
+function boxCheck(coords){
+	for( var i = 0, ii = boxList.length; i < ii; i++ ){
+		if( coords.y == boxList[i].box.y && coords.x == boxList[i].box.x ){
+			return true;
+		}
+	}
+	return false;
+}
+
+/** Returns bounds of next rectangle that route goes through
+ * @param direction
+ * @param box (coordinates)
+ * @returns {LatLngBounds}
+ */
+function nextRect(direction, box){
+	var coords = getCoords(box);
+	var north = coords.y + 1, south = coords.y, west = coords.x, east = coords.x + 1;
+	if( direction == "west" ){ //add one to lng to move west
+		west = (west - 1 + originCoords.x) / coordsMultiplier, east = (east - 1 + originCoords.x) / coordsMultiplier;
+		north = (north + originCoords.y) / coordsMultiplier, south = (south + originCoords.y) / coordsMultiplier;
+		return new google.maps.LatLngBounds( new google.maps.LatLng(south, west), new google.maps.LatLng(north, east) );
+	}
+	else if( direction == "east" ){ //subtract one to lng to move east
+		west = (west + 1 + originCoords.x) / coordsMultiplier, east = (east + 1 + originCoords.x) / coordsMultiplier;
+		north = (north + originCoords.y) / coordsMultiplier, south = (south + originCoords.y) / coordsMultiplier;
+		return new google.maps.LatLngBounds( new google.maps.LatLng(south, west), new google.maps.LatLng(north, east) );
+	}
+	else if( direction == "south" ){ //subtract one to lat to move south
+		north = (north - 1 + originCoords.y) / coordsMultiplier, south = (south - 1 + originCoords.y) / coordsMultiplier;
+		west = (west + originCoords.x) / coordsMultiplier, east = (east + originCoords.x) / coordsMultiplier;
+		return new google.maps.LatLngBounds( new google.maps.LatLng(south, west), new google.maps.LatLng(north, east) );
+	}
+	else { //add one to lat to move north
+		north = (north + 1 + originCoords.y) / coordsMultiplier, south = (south + 1 + originCoords.y) / coordsMultiplier;
+		west = (west + originCoords.x) / coordsMultiplier, east = (east + originCoords.x) / coordsMultiplier;
+		return new google.maps.LatLngBounds( new google.maps.LatLng(south, west), new google.maps.LatLng(north, east) );
+	}
+}
+
+/** 
+ * @param coords from boxList[] 
+ * @returns {google.maps.LatLngBounds} using SW corner returned from getCoords
+ */
+function getBox(coords){
+	var south = (coords.y + originCoords.y) / coordsMultiplier, north = (coords.y + 1 + originCoords.y) / coordsMultiplier;
+	var east = (coords.x + 1 + originCoords.x) / coordsMultiplier, west = (coords.x + originCoords.x) / coordsMultiplier;
+	return new google.maps.LatLngBounds( new google.maps.LatLng(south, west), new google.maps.LatLng(north, east) );
+}
+
+/** Converts from degrees to meters
+ * @param lat geocoded latitude
+ * @param lng geocoded longitude
+ * @returns x,y in meters
+ */
+function convertToMeters(lat, lng){
+	return new xy( (lng + lngDegreeOffset) * lngConvert - lngMeterOffset, (lat - latDegreeOffset) * latConvert + latMeterOffset );
+}
+
+/** Converts from meters to degrees
+ * @param x longitude in meters
+ * @param y latitude in meters
+ * @returns {google.maps.Point}
+ */
+function convertToDegrees(x, y){
+	return new google.maps.Point( (x + lngMeterOffset) / lngConvert - lngDegreeOffset, (y - latMeterOffset) / latConvert + latDegreeOffset );
+}
+
+/** Takes in google point and returns index of where it is on checkerboard
+ * @param newPoint (LatLng)
+ * @returns location of newPoint in lngArray
+ */
+function getBoundIndex(newPoint){
+	var newPointBounds = getBounds(newPoint);
+	return new xy( Math.round( (newPointBounds.getSouthWest().lng() - indexingOrigin.getSouthWest().lng() ) * coordsMultiplier ), 
+				   Math.round( (newPointBounds.getSouthWest().lat() - indexingOrigin.getSouthWest().lat() ) * coordsMultiplier ) );
+}
+
+/** Takes coordinates from checkerboard, and returns latlng of center
+ * @param coords {xy}
+ * @returns {google.maps.LatLng}
+ */
+ function getLatLngFromIndex(coords){
+	var lng = (coords.x + originCoords.x + .5) / coordsMultiplier;
+	var lat = (coords.y + originCoords.y + .5) / coordsMultiplier;
+	return new google.maps.LatLng(lat, lng);
+}
+
+/**
+ * @param ucr (crime type code)
+ * @returns {Number} (weight of crime type)
+ */
+function weighter(ucr){
+	switch (ucr){
+		case 700: return 1; //recovered or stolen vehicle
+		case 600: return 2; //theft or theft from vehicle
+		case 500: return 4; //residential or commercial burglary
+		case 400: return 7; //assault with firearms
+		case 300: return 5; //robbery without firearms
+		case 200: return 8; //rape
+		default: return 10; //homicide
+	}
+}
+
 /** Checks where route leaves Wilmington
  * @param route
  * @returns latLng:of new place, replaceStart:{boolean} should replace start or end
  */
-function whereLeaveWilmington(route) {
+function whereLeaveWilmington(route){
 	myRoute = route; //lazy way of reusing getRouteSlope
-	for (var i = 0, ii = route.length - 2; i < ii; i++) {
+	for( var i = 0, ii = route.length - 2; i < ii; i++ ){
 		var starter = isInWilmington(route[i]), ender = isInWilmington(route[i + 1]);
-		if (starter != ender) {
+		if( starter != ender ){
 			//find where it leaves wilmington
 			var routeSlope = getRouteSlope(i);
 			routeSlope.slope.east = !routeSlope.slope.east;
 			routeSlope.slope.north = !routeSlope.slope.north;
 			var wilBox = new google.maps.LatLngBounds( new google.maps.LatLng(wilBoarders.s, wilBoarders.w),
 													   new google.maps.LatLng(wilBoarders.n, wilBoarders.e) );
-			escape = escapeCheck(myRoute[i + 1], myRoute[i], routeSlope.slope, routeSlope.index, wilBox, false);
+			escape = escapeCheck(myRoute[i + 1], myRoute[i], routeSlope.slope, routeSlope, wilBox, false);
 			var latLngToReturn;
-			if (escape) {
-				if (escape === "north") {
+			if( escape ){
+				if( escape === "north" ){
 					latLngToReturn = new google.maps.LatLng( wilBoarders.n, 
 														     ( wilBoarders.n - route[i].lat() ) / routeSlope.slope.slope + route[i].lng() );  
 				}
-				else if (escape === "south") {
+				else if( escape === "south" ){
 					latLngToReturn = new google.maps.LatLng( wilBoarders.s, 
 															 ( wilBoarders.s - route[i].lat() ) / routeSlope.slope.slope + route[i].lng() );
 				}
-				else if (escape === "east") {
+				else if( escape === "east" ){
 					latLngToReturn = new google.maps.LatLng( routeSlope.slope.slope * ( wilBoarders.e - route[i].lng() ) + route[i].lat(),
 															 wilBoarders.e );
 				}
@@ -10949,31 +11281,12 @@ function whereLeaveWilmington(route) {
 	return null;
 }
 
-/** DE centerlines return duplicates, don't add them */
-function checkForDuplicatePaths(section, path) {
-	for (var i = 0, ii = section.length; i < ii; i++) {
-		var same = true;
-		if (section[i].path.length == path.length) {
-			for (var j = 0, jj = section[i].path.length; j < jj; j++) {
-				if ( section[i].path[j].lat() != path[j].lat() || section[i].path[j].lng() != path[j].lng() ) {
-					same = false;
-					break;
-				}
-			}
-			if (same) {
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-function getGoogleLink() {
-	if ( !rends.R.U ) {return;}
+function getGoogleLink(){
+	if( !rends.R.U ) {return;}
 	var start = savedResult.overview_path[0], end = savedResult.overview_path[savedResult.overview_path.length - 1]; 
 	var link = 'https://www.google.com/maps/dir/' + start.lat() + ',' + start.lng() + '/';
-	for(var i = 1, ii = rends.R.U.length - 1; i<ii; i++) {
-		if(typeof rends.R.U[i].location === 'object') {
+	for( var i = 1, ii = rends.R.U.length - 1; i<ii; i++ ){
+		if( typeof rends.R.U[i].location === 'object' ){
 			link += rends.R.U[i].location.lat() + ',' + rends.R.U[i].location.lng() + '/';
 		}
 	}
@@ -10982,63 +11295,53 @@ function getGoogleLink() {
 	window.open(link);
 }
 
-/** Holds Crime data
- * @param x lng in degrees
- * @param y lat in degrees
- * @param time hour of day
- * @param type UCR_general
- * @returns this
- */
-function Crime(x, y, time, type) {
-	this.x = x;
-	this.y = y;
-	this.time = time;
-	this.type = type;
-};
-
-/** Holds points
- * @param x
- * @param y
- * @returns this
- */
-function xy(x, y) {
-	this.x = x;
-	this.y = y;
-}
-
-/**
- * @param slope of line
- * @param north if true, else south
- * @param east if true, else west
- * @returns this
- */
-function slope(slope, north, east) {
-	this.slope = slope;
-	this.north = north;
-	this.east = east;
+/** DE centerlines return duplicates, don't add them */
+function checkForDuplicatePaths(section, path){
+	for( var i = 0, ii = section.length; i < ii; i++ ){
+		var same = true;
+		if( section[i].path.length == path.length ){
+			for( var j = 0, jj = section[i].path.length; j < jj; j++ ){
+				if( section[i].path[j].lat() != path[j].lat() || section[i].path[j].lng() != path[j].lng() ){
+					same = false;
+					break;
+				}
+			}
+			if( same ){
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 var debug = false;
+var map, request, geocoder;
+/** Stores previous routes for testing purposes */var routesArray = [];
+/** List of all rectangles, saved so that they can be cleared for new route */var overlays = [];
+var directionsService = new google.maps.DirectionsService();
+var rends = new google.maps.DirectionsRenderer();
 /** Total allowable calls to google directions before giving up */var maxDir = 30;
 /** Total allowable sidesteps before trying another route */var sideSteps = 12;
 /** Affects how small checkerbox squares are */var coordsMultiplier = 6000;
-var map, request, geocoder;
 /** Southwestern most box of checkerboard */var indexingOrigin;
 /** Index of indexingOrigin in checkerboard used as reference that others are offset from */var originCoords;
 /** {xy} of latitude and longitude of indexingOrigin */var originIndex;
 /** {LatLng} of destination */var end;
 /** 2D array of all boxes in our checkboard; "dangerousness" is stored as an integer */var lngArray;
 /** 2D array of all boxes in our checkboard; stores if previously tested */var interArray;
+/** Stores heat map of all crimes in the array */var heatArray;
+/** Amount of crime to add to heat map */var heatThreshold = 30;
+/** Array of cleaned polygons that can be graphed */var cleanedArray = [];
+/** Size of crimes when building heat map */var heatSide = 100;
 /** Index of starting point in checkerboard */var firstCoords;
 /** Index of ending point in checkerboard */var lastCoords;
 /** Where in waypoint array backup waypoint should be placed */var backPlace;
 /** Indexes in savedIntersecions of where backup waypoint is */var backxy;
 /** Counts calls to google directions */var directionCalls = 0;
 /** # of waypoints after a crime is found */var checkPoints = 0;
-var directionsService = new google.maps.DirectionsService();
-var rends = new google.maps.DirectionsRenderer();
 var currentDate = new Date();
 /** List of all crimes */var crimes = [];
+/** Crimes not within the last 2 years */var heatCrimes = [];
 /** List of indexes of boxList for box in which each intersection is in */var intersectionBoxListIndex = [];
 /**
  * List of all queried intersections: {intersection:[path:List of LatLngs, 
@@ -11047,12 +11350,14 @@ var currentDate = new Date();
  * wayThere:Does it help us get there, slope:{slope,north,east}]
  * newAdd:just added?, index:which box it's in}
  */var savedIntersections = [];
-/** List of {PolyLine}, saved so that they can be cleared for new route */var lines = [];
+ /** List of {PolyLine}, saved so that they can be cleared for new route */var lines = [];
 /** List of {Marker}, saved so that they can be cleared for new route */var markersArray = [];
 /** List of {Circle}, saved so that they can be cleared for new route */var circles = [];
 /** List of options used when creating circles */var circleOptions = [];
 /** List xy coords of all boxes, that have had queried intersections go through them */var boxList = [];
-/** List of all rectangles, saved so that they can be cleared for new route */var overlays = [];
+/** Saved boxList in case driving route is bad */var drivingBoxList = [];
+/** What to compare to boxList when verifying driving reroutes */var drivingTest = [];
+/** For driving resume */var drivingTestArguments = [], drivingResume = false;
 /** List of all street objectIds that have been previously tested */var testedObjectIds = [];
 /** List of wayPoints used in current route */var wayPoints = [];
 /** Stores backup waypoint to potentially be used */var backupWayPoints = [];
@@ -11066,7 +11371,6 @@ var currentDate = new Date();
 /** Threshold for when something is pointing too far away from destination */var half = Math.PI * 13 / 20;
 /** Stores colors that can be used */var colors = ['FF0000', '00FF00', '0000FF', 'FFFF00', '00FFFF', 'FF00FF', 'C0C0C0', 'FFFFFF'];
 /** Which color to use in colors[] */var colorIndex = 0;
-/** Stores previous routes for testing purposes */var routesArray = [];
 /** Counts total # of routes called */var wayCounter = 0;
 /** Directions.overview_path */var myRoute;
 /** Minimum allowed size of BoxList */var tollerance = 3;
@@ -11075,59 +11379,67 @@ var currentDate = new Date();
 /** Length of boxList at beginning of route with crimes */var crimeIndex = 4;
 /** Search box for starting place */var startBox;
 /** Search box for ending place */var endBox;
-/** Screen width that moves fields to left */var changeWidth = 900;
+/** Screen width that moves fields to left */var changeWidth = 928;
 /** Screen height that moves buttons to top */var changeHeight = 406;
 /** User clicked destination */var endMarker;
-var input, output, time, go, locate, dirType, gMaps, travelMode;
+var input, output, time, go, locate, dirType, gMaps, helpForm, accordion, controlsOk, travelMode, reroute;
+/** Size of help window */var helpWidth = 800, helpHeight = 400;
 /** True if driving, false if walking */var driving = false;
 /** Cellphone? */var mobileWidth, mobileHeight;
 /** Wilmington Boarders */var wilBoarders = {n: 39.78, s: 39.7, e: -75.47, w: -75.6};
-var latestWaypointSlope;
-var savedStart, savedEnd;
-var request;
+var savedStart, savedEnd, tripReset = false;
 /** How closet the best route is to the destination */var closestSaveDistance = 10000;
 /** Saved best route */var bestRoute;
-/** Used when checking for wrongway reroutes */var indicesToCheck = 0, indicesChecked = false, waySlope;
- 
- var lngMeterOffset = 8412100.2;
- var latMeterOffset = 4828611.4; //var latMeterOffset = 4855716;
- //var latMeterOffset = 4855766;
- var lngDegreeOffset = 75.567181;
- //var latDegreeOffset = 39.93065;
- var latDegreeOffset = 39.742623;
+/** Rerouting enabled? */var autoRoute = true;
+
+var lngMeterOffset = 8412100.2;
+var latMeterOffset = 4828611.4; //var latMeterOffset = 4855716;
+//var latMeterOffset = 4855766;
+var lngDegreeOffset = 75.567181;
+//var latDegreeOffset = 39.93065;
+var latDegreeOffset = 39.742623;
 
 google.maps.event.addDomListener(window, 'load', initialize);
 </script>
 
+<script>
+  $(function(){
+    $( "#accordion" ).accordion({
+      heightStyle: "fill"
+    });
+  });
+</script>
+
 <script type="text/javascript">  
-  function increase() {
-	if (input.style.width != "300px") {
+  
+  function increase(){
+	if( input.style.width != "300px" ){
 	  input.style.width = "300px";
 	  output.style.width = "300px";
 	}
-	if (input.style.color != "initial") {
+	if( input.style.color != "initial" ){
 		input.style.color = "initial";
 	}
-	if (output.style.color != "initial") {
+	if( output.style.color != "initial" ){
 		output.style.color = "initial";
 	}
-	if (time.style.color != "initial") {
+	if( time.style.color != "initial" ){
 		time.style.color = "initial";
 	}
-	if (input.value == "Not in Wilmington" || input.value == "Cannot find address" || input.value == "Missing") {
+	if( input.value == "Not in Wilmington" || input.value == "Cannot find address" || input.value == "Missing" ){
 		input.value = "";
 	}
-	if (output.value == "Not in Wilmington" || output.value == "Cannot find address" || input.value == "Missing") {
+	if( output.value == "Not in Wilmington" || output.value == "Cannot find address" || input.value == "Missing" ){
 		output.value = "";
 	}
-	if (time.value == "?") {
+	if( time.value == "?" ){
 		time.value = "";
 	}
   }
 	
-  function getCurrentLocation() {
-	if (navigator.geolocation) {
-	  navigator.geolocation.getCurrentPosition(function(position) {
+  function getCurrentLocation(){
+	if( navigator.geolocation ){
+	  navigator.geolocation.getCurrentPosition(function(position){
 		input.value = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 		input.value = input.value.substring( 1, input.value.length - 1 );
 		input.style.color = "initial";
@@ -11135,17 +11447,33 @@ google.maps.event.addDomListener(window, 'load', initialize);
 	}
   }
   
-  function directionSwitch() {
-    if (dirType.value == "Walking") {
-    	dirType.value = "Driving";
-    	travelMode = google.maps.TravelMode.DRIVING;
-    	driving = true;
+  function directionSwitch(){
+    if( dirType.value == "Walking" ){
+      dirType.value = "Driving";
+      travelMode = google.maps.TravelMode.DRIVING;
+      driving = true;
     }
     else {
-    	dirType.value = "Walking";
-    	travelMode = google.maps.TravelMode.WALKING;
-    	driving = false;
+      dirType.value = "Walking";
+      travelMode = google.maps.TravelMode.WALKING;
+      driving = false;
     }
+  }
+  
+  function hideHelp(){
+	helpForm.hidden = !helpForm.hidden;
+	sizing();
+  }
+  
+  function resetDefaults(){
+	document.getElementById('numOfCrimes').value = 4;
+	document.getElementById('distFromCrimes').value = 100;
+	document.getElementById('years').value = 2;
+  }
+  
+  function routeToggle(){
+	reroute.value = autoRoute ? "Man-route" : "Auto-route";
+	autoRoute = !autoRoute;
   }
 </script>
 
@@ -11160,44 +11488,84 @@ google.maps.event.addDomListener(window, 'load', initialize);
 	<input id="go" class="controls" type="button" value="Go" onclick="calcRoute()">
 	<input id="locate" class="controls" type="button" value="Locate Me" onclick="getCurrentLocation()">
 	<input id="gMaps" class="controls" type="button" value="Gmaps" onclick="getGoogleLink()">
+	<input id="reroute" class="controls" type="button" value="Auto-route" onclick="routeToggle()">
+	<input id="help" class="controls" type="button" value="?" onclick="hideHelp()">
 	<div id="legend">
 		<div class="top">
 			<!-- <div class="text" id="1">
 				<img
 					src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAVhJREFUOI3tk78rhHEYwD/Pe2+9SeEknSJlY0EUBhMGi/KrO0Upo2TUdQzidVnFoCwYziUMRhMZDPI3KCSDUzLcN933sRy9idxwC3mm53l6ns/T88ulyOL+A38hMI0fVej+cHhkgSyoaGnoeCwTvygYmGZ53KJT4oUWYiZ+nq5Mtmsm1xljfn2fZCRn7NUey20x5u+/BO6SrHA92+QYGhVaFfoduMPoXAp/0mZslSDVKfyWHLYEqAE5SrGy6qKXoyRu3HxbQwobYCMY0EARhQZQJOAT6AqYHYIe5oA9/LibT1oEIvmAR9AXkPofxvsuT0A4r/e6AOIxDdpjjTSDlgvOLdgbPDn9jiKGsMKIwozAGh5bYuTBBYiaxBlwdsBC2Ssl24qtdQhNRE38+jvgCTiP+HUCO8BszCQ24dNShll6BgYL6bMPLCQGACEw9mIcdnCHf+H1/h7wDQStcE8nHEi8AAAAAElFTkSuQmCC"
-					width="14" height="14">Recovered Stolen Vehicles
-			</div>
+					width="14" height="14">Recovered Stolen Vehicles</div>
 			<div class="text" id="2">
 				<img
 					src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAY9JREFUOI3d1D1IW1EYgOE38eJVaW254s8NlSRtriEBY4KYQkvJ0mJrWtIlhCC20dgOBkUFlwRcolOhY6E/QxuKS4dCcckScGkHFxcHQbChpVcpnKkZziJOgRCSmsRMvuN3+B6+6Si0OeXSgFbc5DjgGXB6YVC7Q8q5SOjoPS9EgbcXBa/3T6rTtpC88e+AhCjwGSi1DGphsjfj0gfgiOH7+YOMzJNuFfTqEe4qV+gG6LxGj+ux+mA/L98Av5sG9Sibjkf4K2eOJ9JvFsiKr8w2C0acCdzWDiyVQ2snijPGGDvahBBit1FQtSdZ7gvgqfVou0fgz0ORYYunDYGqi9WRFLfq3m4BdxLD3CIKfDkP1IfjTHUNMVwXBK568NpfMl98xzdA1gW122SN5/j+h5XzLmAUP7GE5FVNUNO0oD4nPEoPvY2AygBO1xr3Dzf4CPytBi2lcbHuCBNsBCtnJBj7ta2m5Z5cqQZnhkYJHn9v+gcaxJBR/UT/YJrmfuVyrviaXLFJrZyJSfWFbant4BnHT161nuyOcwAAAABJRU5ErkJggg=="
-					width="14" height="14">Theft from Vehicle
-			</div>
+					width="14" height="14">Theft from Vehicle</div>
 			<div class="text" id="3">
 				<img
 					src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAASVJREFUOI3t07FKA0EQxvG/mzMjLNhfI1intA3B5sDCMgqChYUvEBDuFH0ABZ/AxtYiKhxW9nZ5gICgjVy3YCMOKmdxQRJz8fbARvBrFobdHzMDG/DLCXwuiUikqk3gBlgKw3ARIMuyIfBWCxSRKFZNm2AOoXsEvecsW30AUlgGHr1BEYkS1TQBMYCBfgyBAW4LcCozwXFsYVTbg2CuYqJSUESi/REmY/X5CqwUnIV9jymONj/t0BcD6ADHcB7DC3A5BYpIdKCaxh4YFOP3oJHDRQKbwNUEaK1169Ym187tbkDLVIA50IfhmsjZibVPzrnJDp1zgxUYAO0utKo6zIEtuEf1FNWvutdPqZN/8K+AHaBR8fCjBrh9BzueDb37gK+eWGk+AYx1VS4+obNsAAAAAElFTkSuQmCC"
-					width="14" height="14">Burglary Residential
-			</div>
+					width="14" height="14">Burglary Residential</div>
 			<div class="text" id="1">
 				<img
 					src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAJBJREFUOI1jYaAyYBlyBi5lYGA4TKIZtgwMDNG4DDzMwMAwg3R3IQBWL/9fyfCfGM2M4QyMRBlICaC/ga8/MzDcfQFhK0kwMIjxUmjg3RcMDJY1EPbRRgYGMQ0KDSQVEDRQWYKB4XgLhK0kQQUDRXkhmFgwRJMNthxAroG2ZJhhy4CU/9ENjGYgHaAUJoM/UgDglRMMuMOY5wAAAABJRU5ErkJggg=="
-					width="14" height="14">Aggravated Assault w/ Firearms
-			</div>
+					width="14" height="14">Aggravated Assault w/ Firearms</div>
 			<div class="text" id="2">
 				<img
 					src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAdBJREFUOI3F1E9Ik3Ecx/E385nPHpeMckSmaBCI5SUJnkjYTupaGhShYjvMEoSI0msM+ncR6mgLghGIl4WHNIIJQnZYEV3yYhSLvESi5or2MPntaU8dUkv229oTUZ/j78v3xZcffL8KfznKvwYbaQueUg8crReqpqqfVzNibuIVS0tTgGEH1OgZvk57n5+D+mHhqFAABMDglTWSj0LM3Y/z5MF4OWA1F25O0HMpiFOtLKi63DW09x3jkK8ZT20T03cipcHBG1F6R06gOB1Fpv8R7959nIuEyeUWScRiUlDtOB0Qx8OB32I/0Tr8XQMkYnE2/nQbKFoDA+xp2F0Wthm9UycYDpEYv1sA4q1vsoUBuKqcNB/R5aDLtdM2CFDt2erbDlqW9UfgNysvB9eNZWC/LczKo35a+yBkoJpeeSrWjTa0HeWDiwsZ8TF1WzqhuDUUoaa2F193Y1mYKeD1y8fEoykpCJgI4zwLLyZp0d0lsa8mJB++JfXmzK/PhZtytT/B6FSIZzMxWn1eNIm7+h7mk/Mo+U4mR7OlQYDLJ6cZm53l+UwUt8ePVlWHo6ISM5fB+PJul5m9l77WPyZrLX6+LnZkgbOyUrpo0384sLbzHW9Hii0JihZCAAAAAElFTkSuQmCC"
-					width="14" height="14">Robbery w/o Firearms
-			</div> -->
+					width="14" height="14">Robbery w/o Firearms</div> -->
 			<div class="text" id="3">
 				<img
 					src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAQpJREFUOI3V07tKA1EUheEvkBjRIqCCFxS7oI2CWNr4JIIXBFs7G2sbCwOCoKBvYCfkAbQUrQQrMSA2gsoExhRaTAzjMCRkUCELdnHWWednbzYn75eVb3e5xcU7y0l/oFjcPwrDna6BARMbFMdj3jWqYTiaqUMYbFaruw75jsBu9XfAdU6Sl49Mpj16ZimZ76N2yG4LeMXqXsrjUuI8jU3KogIBqtTFgUNYaDtMpOFmxfUaAdFTS/nAU0pgBIXYuS4aMa63NOAMtweJ4D3lCv3xn3KHCi9j1OLZEg8/gGfMJ7tb4QZzSX+K82PWUgbqpaX8CzBHYxsFPr+9gNwsjUzAUxbT/MusHWbRFyCLMAKMGl2IAAAAAElFTkSuQmCC"
-					width="14" height="14">Shooting
-			</div>
+					width="14" height="14">Shooting</div>
 			<div class="text" id="4">
 				<img
 					src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAJNJREFUOI1jYaAyYCEgv52BgcERXZCdnb3v58+fVeQYKMXAwMCOLvjz509xcl1IMhhaBs7FIi+DQ58NFvVPGBgY6pENTCLBIWpQjAy+oRtIFTDCDbyERV6NgYGBA4v4OwZIrCKDh+gG6mPReJGBgUEPi/gGBgaGZEIupAoY+gb+htL/kcQYkcRJNtCECEeRZCDJAACvzxaq9xVEAQAAAABJRU5ErkJggg=="
-					width="14" height="14">Homicide
-			</div>
-		</div>
-	</div>
+					width="14" height="14">Homicide</div></div></div>
+	<div id="help-form">
+		<form>
+			<div id="accordion">
+				<h3>Summary</h3>
+				<div>
+					<p>
+						This page displays Wilmington, DE crime data overlayed on Google maps in an attempt to show a safer route when walking or driving in 
+						Wilmington. A majority of shootings in the city have taken place in a certain areas that can be avoided.</p></div>
+				<h3>Instructions</h3>
+				<div>
+					<p>Enter an origin in the "Start" textbox or press "Locate Me" to select your current position if available.</p>
+					<p>A destination can be selected by long clicking on the map or typing into the "End" textbox.</p>
+					<p>
+						Crimes that happened close to the entered time of day will be displayed. If no time is entered, the current 
+						system time is entered automatically.</p>
+					<p>You can pick either walking or driving directions, or disable automatic rerouting. Press Go to display a route.</p>
+					<p>
+						The route can be modified just like in regular Google maps. Once you are satisfied with your route, you can press the "Gmaps" to open 
+						a Google maps direction page or the Maps app on your phone.</p></div>
+				<h3>Map Overlays</h3>
+				<div>
+					<p>
+						The icons shown after clicking "Go" show all crimes in the past 2 years that happened near the time of day selected. For example, if 
+						11:15 was entered, crimes that happened between 10 and 1 are shown. A legend of the icons is displayed near the top left. Hover over 
+						an icon to see a quick summary of the incident. Click an icon to see additional information and a link to a report on the incident. 
+						The size of the circle gives a quick view of how recently the crime took place. Bigger circles represent more recent crimes.</p>
+					<p>
+						The blue overlay represents crime hot spots. It is suggested that if an area has more than a certain amount of crime at ANY time of 
+						the day it should always be avoided. The "heat threshold" can be modified below. Default is for a given area to display as a hot spot 
+						if it was less than 100 meters from 4 crimes that happened any time in the last 2 years.</p>
+					<p>
+						Let's go ahead and call the rerouting "beta". It will fail miserably at times. If this happens, you can disable the automatic 
+						rerouting and drag the route as you see fit.</p></div>
+				<h3>Disclaimer & Settings</h3>
+				<div>
+					<p>
+						The crime data shown was extracted from <a href="http://data.delawareonline.com/webapps/crime/">here</a> and goes back to 2011. The 
+						blue heatmap shows areas that have at least a certain amount of crime, but does not tell you if certain areas within a given blue 
+						section have even more crime than the threshold. The goal of the auto-rerouting is to cover the smallest distance in the blue area, 
+						but this potentially will take you through a more dangerous part of a blue section. Your best bet is to avoid the blue areas 
+						altogether.</p>
+					<p>Heatmap Crime Settings</p>
+					# of: <input id="numOfCrimes" type="text" value="4" size=2 maxlength=2>&nbsp&nbsp&nbsp&nbsp
+					Meters from: <input id="distFromCrimes" type="text" value="100" size=4 maxlength=4>&nbsp&nbsp&nbsp&nbsp
+					Years since: <input id="years" type="text" value="2" size=1 maxlength=1>
+					<input id="defaults" type="button" value="Defaults" onclick="resetDefaults()"></div></div>
+		</form><input id="controlsOk" type="button" value="OK" onclick="hideHelp()"></div>
 </body>
 </html>
