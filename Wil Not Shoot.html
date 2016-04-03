@@ -9704,8 +9704,6 @@ function initialize(){
 	
 	map.controls[google.maps.ControlPosition.LEFT_TOP].push( document.getElementById('legend') );
 	
-	
-	
 	// Bias the SearchBox results towards current map's viewport.
 	map.addListener('bounds_changed', function(){
 	  startBox.setBounds( map.getBounds() );
@@ -9788,7 +9786,7 @@ function sizing(initial){
 		}
 	}
 	else if( localWidth < tablet.width ){
-		if( !smartphone.on ){
+		if( !smartphone.on || initial ){
 			resetSizes();
 			smartphone.on = true;
 			output.style.marginTop = '52px';
@@ -9804,7 +9802,6 @@ function sizing(initial){
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(dirType);
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(reroute);
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(gMaps);
-			
 		}
 	}
 	else if( localWidth < desktop.width ){
@@ -9824,38 +9821,36 @@ function sizing(initial){
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(dirType);
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(reroute);
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(gMaps);
-			
 		}
 	}
-	else {
-		if( !desktop.on || initial ){
-			resetSizes();
-			desktop.on = true;
-			output.style.marginTop = '10px';
-			output.style.marginLeft = '12px';
-			go.style.marginTop = '10px';
-			input.style.width = "300px";
-			output.style.width = "300px";
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(locate);
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(dirType);
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(reroute);
-			map.controls[google.maps.ControlPosition.LEFT_TOP].push(gMaps);
-			map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-			map.controls[google.maps.ControlPosition.TOP_LEFT].push(output);
-			map.controls[google.maps.ControlPosition.TOP_LEFT].push(time);
-			map.controls[google.maps.ControlPosition.TOP_LEFT].push(go);
-			
-		}
+	else if( !desktop.on || initial ){
+		resetSizes();
+		desktop.on = true;
+		output.style.marginTop = '10px';
+		output.style.marginLeft = '12px';
+		go.style.marginTop = '10px';
+		input.style.width = "300px";
+		output.style.width = "300px";
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(locate);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(dirType);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(reroute);
+		map.controls[google.maps.ControlPosition.LEFT_TOP].push(gMaps);
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(output);
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(time);
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(go);
 	}
-	map.controls[google.maps.ControlPosition.RIGHT_CENTER].pop();
-	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push( helpForm );
-	var testWidth = localWidth * .8, testHeight = localHeight * .8;
-	helpForm.style.width = ( testWidth > helpWidth ? helpWidth : testWidth ) + 'px';
-	helpForm.style.height = ( testHeight > helpHeight ? helpHeight : testHeight ) + 'px';
-	helpForm.style.marginRight = ( localWidth - ( testWidth > helpWidth ? helpWidth : testWidth ) ) / 2 + 'px';
-	accordion.style.height = helpForm.style.height;
-	$( "#accordion" ).accordion( "refresh");
-	controlsOk.style.marginLeft = ( testWidth > helpWidth ? helpWidth : testWidth ) - 23 + 'px';
+	if( !helpForm.hidden ){
+		map.controls[google.maps.ControlPosition.RIGHT_CENTER].pop();
+		map.controls[google.maps.ControlPosition.RIGHT_CENTER].push( helpForm );
+		var testWidth = localWidth * .8, testHeight = localHeight * .8;
+		helpForm.style.width = ( testWidth > helpWidth ? helpWidth : testWidth ) + 'px';
+		helpForm.style.height = ( testHeight > helpHeight ? helpHeight : testHeight ) + 'px';
+		helpForm.style.marginRight = ( localWidth - ( testWidth > helpWidth ? helpWidth : testWidth ) ) / 2 + 'px';
+		accordion.style.height = helpForm.style.height;
+		$( "#accordion" ).accordion( "refresh");
+		controlsOk.style.marginLeft = ( testWidth > helpWidth ? helpWidth : testWidth ) - 23 + 'px';
+	}
 }
 
 /**
