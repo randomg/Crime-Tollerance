@@ -9704,7 +9704,7 @@ function initialize(){
 	
 	map.controls[google.maps.ControlPosition.LEFT_TOP].push( document.getElementById('legend') );
 	
-	sizing(true);
+	
 	
 	// Bias the SearchBox results towards current map's viewport.
 	map.addListener('bounds_changed', function(){
@@ -9750,7 +9750,9 @@ function initialize(){
 		}
 	});
 
-	travelMode = ( driving ? google.maps.TravelMode.DRIVING : google.maps.TravelMode.WALKING ); 
+	travelMode = ( driving ? google.maps.TravelMode.DRIVING : google.maps.TravelMode.WALKING );
+	
+	sizing();
 }
 
 /** Helper function for sizing */
@@ -9765,12 +9767,12 @@ function resetSizes(){
 }
 
 /** Puts google controls in the right place depending on screen size */
-function sizing(initial){
+function sizing(){
 	var localWidth = $(window).width();
 	var localHeight = $(window).height();
 	if( localWidth < smartphone.width ){
 		if( !oldSmartphone.on ){
-			if(initial){resetSizes();}
+			resetSizes();
 			oldSmartphone.on = true;
 			output.style.marginTop = '10px';
 			output.style.marginLeft = '12px';
@@ -9787,7 +9789,7 @@ function sizing(initial){
 	}
 	else if( localWidth < tablet.width ){
 		if( !smartphone.on ){
-			if(initial){resetSizes();}
+			resetSizes();
 			smartphone.on = true;
 			output.style.marginTop = '52px';
 			output.style.marginLeft = '-300px';
@@ -9807,7 +9809,7 @@ function sizing(initial){
 	}
 	else if( localWidth < desktop.width ){
 		if( !tablet.on ){
-			if(initial){resetSizes();}
+			resetSizes();
 			tablet.on = true;
 			output.style.marginTop = '52px';
 			output.style.marginLeft = '-392px';
@@ -9827,7 +9829,7 @@ function sizing(initial){
 	}
 	else {
 		if( !desktop.on ){
-			if(initial){resetSizes();}
+			resetSizes();
 			desktop.on = true;
 			output.style.marginTop = '10px';
 			output.style.marginLeft = '12px';
