@@ -9704,7 +9704,7 @@ function initialize(){
 	
 	map.controls[google.maps.ControlPosition.LEFT_TOP].push( document.getElementById('legend') );
 	
-	sizing();
+	sizing(true);
 	
 	// Bias the SearchBox results towards current map's viewport.
 	map.addListener('bounds_changed', function(){
@@ -9756,7 +9756,6 @@ function initialize(){
 /** Helper function for sizing */
 function resetSizes(){
 	desktop.on = false, tablet.on = false, smartphone.on = false, oldSmartphone.on = false;
-	widthChanged = true;
 	for( var i = 0, ii = map.controls[google.maps.ControlPosition.TOP_LEFT].length; i < ii; i++ ){
 		map.controls[google.maps.ControlPosition.TOP_LEFT].pop();
 	}
@@ -9766,14 +9765,12 @@ function resetSizes(){
 }
 
 /** Puts google controls in the right place depending on screen size */
-function sizing(){
+function sizing(initial){
 	var localWidth = $(window).width();
-	console.log(localWidth);
 	var localHeight = $(window).height();
-	var heightChanged = false, widthChanged = false;
 	if( localWidth < smartphone.width ){
 		if( !oldSmartphone.on ){
-			resetSizes();
+			if(initial){resetSizes();}
 			oldSmartphone.on = true;
 			output.style.marginTop = '10px';
 			output.style.marginLeft = '12px';
@@ -9790,30 +9787,33 @@ function sizing(){
 	}
 	else if( localWidth < tablet.width ){
 		if( !smartphone.on ){
-			resetSizes();
+			if(initial){resetSizes();}
 			smartphone.on = true;
 			output.style.marginTop = '52px';
 			output.style.marginLeft = '-300px';
+			input.style.width = "300px";
+			output.style.width = "300px";
+			go.style.marginTop = '10px';
 			map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 			map.controls[google.maps.ControlPosition.TOP_LEFT].push(output);
-			go.style.marginTop = '10px';
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(time);
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(go);
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(locate);
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(dirType);
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(reroute);
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(gMaps);
-			input.style.width = "300px";
-			output.style.width = "300px";
+			
 		}
 	}
 	else if( localWidth < desktop.width ){
 		if( !tablet.on ){
-			resetSizes();
+			if(initial){resetSizes();}
 			tablet.on = true;
 			output.style.marginTop = '52px';
 			output.style.marginLeft = '-392px';
 			go.style.marginTop = '52px';
+			input.style.width = "300px";
+			output.style.width = "300px";
 			map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 			map.controls[google.maps.ControlPosition.TOP_LEFT].push(time);
 			map.controls[google.maps.ControlPosition.TOP_LEFT].push(output);
@@ -9822,17 +9822,18 @@ function sizing(){
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(dirType);
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(reroute);
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(gMaps);
-			input.style.width = "300px";
-			output.style.width = "300px";
+			
 		}
 	}
 	else {
 		if( !desktop.on ){
-			resetSizes();
+			if(initial){resetSizes();}
 			desktop.on = true;
 			output.style.marginTop = '10px';
 			output.style.marginLeft = '12px';
 			go.style.marginTop = '10px';
+			input.style.width = "300px";
+			output.style.width = "300px";
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(locate);
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(dirType);
 			map.controls[google.maps.ControlPosition.LEFT_TOP].push(reroute);
@@ -9841,8 +9842,7 @@ function sizing(){
 			map.controls[google.maps.ControlPosition.TOP_LEFT].push(output);
 			map.controls[google.maps.ControlPosition.TOP_LEFT].push(time);
 			map.controls[google.maps.ControlPosition.TOP_LEFT].push(go);
-			input.style.width = "300px";
-			output.style.width = "300px";
+			
 		}
 	}
 	map.controls[google.maps.ControlPosition.RIGHT_CENTER].pop();
