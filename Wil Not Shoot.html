@@ -9729,7 +9729,7 @@ function initialize(){
 		}
 	});
 	
-	//$(window).resize(sizing);
+	$(window).resize(sizing);
 	
 	var downDate;
 	
@@ -9752,7 +9752,7 @@ function initialize(){
 
 	travelMode = ( driving ? google.maps.TravelMode.DRIVING : google.maps.TravelMode.WALKING );
 	
-	sizing();
+	sizing(initial);
 }
 
 /** Helper function for sizing */
@@ -9767,11 +9767,11 @@ function resetSizes(){
 }
 
 /** Puts google controls in the right place depending on screen size */
-function sizing(){
+function sizing(initial){
 	var localWidth = $(window).width();
 	var localHeight = $(window).height();
 	if( localWidth < smartphone.width ){
-		if( !oldSmartphone.on ){
+		if( !oldSmartphone.on || initial ){
 			resetSizes();
 			oldSmartphone.on = true;
 			output.style.marginTop = '10px';
@@ -9808,7 +9808,7 @@ function sizing(){
 		}
 	}
 	else if( localWidth < desktop.width ){
-		if( !tablet.on ){
+		if( !tablet.on || initial ){
 			resetSizes();
 			tablet.on = true;
 			output.style.marginTop = '52px';
@@ -9828,7 +9828,7 @@ function sizing(){
 		}
 	}
 	else {
-		if( !desktop.on ){
+		if( !desktop.on || initial ){
 			resetSizes();
 			desktop.on = true;
 			output.style.marginTop = '10px';
