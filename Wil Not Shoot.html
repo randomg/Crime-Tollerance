@@ -9703,12 +9703,8 @@ function initialize(){
 	map.controls[google.maps.ControlPosition.TOP_RIGHT].push( document.getElementById('help') );
 	
 	map.controls[google.maps.ControlPosition.LEFT_TOP].push( document.getElementById('legend') );
-	map.controls[google.maps.ControlPosition.LEFT_TOP].push(locate);
-	map.controls[google.maps.ControlPosition.LEFT_TOP].push(dirType);
-	map.controls[google.maps.ControlPosition.LEFT_TOP].push(reroute);
-	map.controls[google.maps.ControlPosition.LEFT_TOP].push(gMaps);
 	
-	sizing(true);
+	sizing();
 	
 	// Bias the SearchBox results towards current map's viewport.
 	map.addListener('bounds_changed', function(){
@@ -9770,7 +9766,7 @@ function resetSizes(){
 }
 
 /** Puts google controls in the right place depending on screen size */
-function sizing(initial){
+function sizing(){
 	var localWidth = $(window).width();
 	var localHeight = $(window).height();
 	var heightChanged = false, widthChanged = false;
