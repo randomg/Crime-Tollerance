@@ -9728,7 +9728,7 @@ function initialize(){
 	});
 	
 	if( mobileAndTabletcheck() ) {
-		$(window).bind( 'orientationchange', sizing );
+		$(window).bind( 'orientationchange', function(){window.setTimeout(function(){sizing();}, 500);} );
 	}
 	else {		
 		$(window).resize(sizing);
