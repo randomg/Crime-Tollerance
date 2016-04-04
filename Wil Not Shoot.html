@@ -9728,7 +9728,7 @@ function initialize(){
 	});
 	
 	if( mobileAndTabletcheck() ) {
-		$(window).bind( 'orientationChange', sizing );
+		$(window).bind( 'orientationchange', sizing );
 	}
 	else {		
 		$(window).resize(sizing);
