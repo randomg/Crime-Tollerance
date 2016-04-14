@@ -22,10 +22,6 @@ body {
 	height: 100%;
 }
 
-.behind {
-  position: absolute;
-}
-
 .controls {
   margin-top: 10px;
   border: 1px solid transparent;
@@ -37,12 +33,27 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
+#outOfWil {
+  border: 1px solid black;
+  border-radius: 2px 0 0 2px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  background-color: #fff;
+  font-family: Roboto;
+  font-size: 15px;
+  font-weight: 300;
+  height: 100px;
+  width: 260px;
+}
+
 #controlsOk {
   border: 1px solid transparent;
   border-radius: 2px 0 0 2px;
   box-sizing: border-box;
+  font-size: 18px;
   -moz-box-sizing: border-box;
   height: 32px;
+  width: 80px;
   outline: none;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
@@ -148,11 +159,8 @@ body {
 
 #help-form {
   background-color: #fff;
-  border: 1px solid transparent;
-  border-radius: 2px 0 0 2px;
   height: 450px;
   margin-right: 12px;
-  padding: 0 11px 0 10px;
   width: 800px;
 }
 
@@ -9683,7 +9691,7 @@ function initialize(){
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
 	map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
-	
+
 	// Create the search box and link it to the UI element.
 	input = document.getElementById('starting');
 	output = document.getElementById('ending');
@@ -9693,23 +9701,31 @@ function initialize(){
 	dirType = document.getElementById('dirType');
 	gMaps = document.getElementById('gMaps');
 	helpForm = document.getElementById('help-form');
+	form = document.getElementById('form');
 	accordion = document.getElementById('accordion');
 	controlsOk = document.getElementById('controlsOk');
 	reroute = document.getElementById('reroute');
+	outOfWil = document.getElementById('outOfWil');
 	
+	inputClick();
+	outputClick();
+	timeClick();
+
 	startBox = new google.maps.places.SearchBox(input);
 	endBox = new google.maps.places.SearchBox(output);
-	
+
 	map.controls[google.maps.ControlPosition.TOP_RIGHT].push( document.getElementById('help') );
-	
+
 	map.controls[google.maps.ControlPosition.LEFT_TOP].push( document.getElementById('legend') );
 	
+	map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push( outOfWil );
+
 	// Bias the SearchBox results towards current map's viewport.
 	map.addListener('bounds_changed', function(){
 	  startBox.setBounds( map.getBounds() );
 	  endBox.setBounds( map.getBounds() );
 	});
-	
+
 	startBox.addListener('places_changed', function(){
 		var places = startBox.getPlaces();
 		if( places.length > 0 ){
@@ -9726,35 +9742,37 @@ function initialize(){
 			endMarker = null;
 		}
 	});
-	
+
 	if( mobileAndTabletcheck() ) {
 		$(window).bind( 'orientationchange', function(){window.setTimeout(function(){sizing();}, 500);} );
 	}
-	else {		
+	else {
 		$(window).resize(sizing);
 	}
-	
+
 	var downDate;
-	
+
 	map.addListener('mousedown', function(){
 		downDate = new Date();
 	});
 	map.addListener('click', function(e){
 		if( downDate && new Date() - downDate > 500 ){
-			output.value = e.latLng;
-			output.value = output.value.substring( 1, output.value.length - 1 );
+			outputPin = e.latLng.toString();
+			outputPin = outputPin.substring( 1, outputPin.length - 1 );
+			output.value = "Dropped Pin";
+			output.style.color = "green";
 			if( endMarker ){
 				endMarker.setMap(null);
 			}
 			endMarker = new google.maps.Marker({
-				position: e.latLng, 
+				position: e.latLng,
 				map: map
 			});
 		}
 	});
 
 	travelMode = ( driving ? google.maps.TravelMode.DRIVING : google.maps.TravelMode.WALKING );
-	
+
 	sizing(true);
 }
 
@@ -9763,7 +9781,7 @@ function mobileAndTabletcheck(){
 	(
 		function(a){
 			if( /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i
-					.test(a) || 
+					.test(a) ||
 				/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i
 					.test( a.substr(0,4) ) ){
 				check = true;
@@ -9868,8 +9886,14 @@ function sizing(initial){
 		helpForm.style.height = ( testHeight > helpHeight ? helpHeight : testHeight ) + 'px';
 		helpForm.style.marginRight = ( localWidth - ( testWidth > helpWidth ? helpWidth : testWidth ) ) / 2 + 'px';
 		accordion.style.height = helpForm.style.height;
-		$( "#accordion" ).accordion( "refresh");
-		controlsOk.style.marginLeft = ( testWidth > helpWidth ? helpWidth : testWidth ) - 23 + 'px';
+		$("#accordion").accordion("option", "active", 0);
+		$("#accordion").accordion("refresh");
+		controlsOk.style.marginLeft = ( testWidth > helpWidth ? helpWidth : testWidth ) - 81 + 'px';
+	}
+	if( !outOfWil.hidden ){
+		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].pop();
+		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push( outOfWil );
+		outOfWil.style.marginBottom = ( localHeight - outOfWil.style.height ) / 2 + 'px';
 	}
 }
 
@@ -9878,6 +9902,10 @@ function sizing(initial){
  * queries and then places crimes, then calls showSteps to check route
  */
 function calcRoute(){
+	if( !helpForm.hidden ){
+		helpForm.hidden = true;
+		sizing();
+	}
 	var startPlaces = startBox.getPlaces();
 	var endPlaces = endBox.getPlaces();
 	if( $(window).width() < tablet.width ){
@@ -9887,24 +9915,38 @@ function calcRoute(){
 		output.style.width = '100px';
 		input.style.width = '100px';
 	}
-	
-	var startText = ( startPlaces && startPlaces.length > 0 ? startPlaces[0].formatted_address : input.value );
-	if( startText === "" ){
-		input.value = "Missing";
-		input.style.color = "red";
+
+	var startText;
+	if( input.value === 'Current Location' && input.style.color == 'green' ){
+		startText = userLocation;
 	}
-	
-	var endText = ( endPlaces && endPlaces.length > 0 ? endPlaces[0].formatted_address : output.value);
-	if( endText === "" ){
-		output.value = "Missing";
-		output.style.color = "red";
+	else {
+		startText = ( startPlaces && startPlaces.length > 0 ? startPlaces[0].formatted_address : input.value );
+		userLocation = null;
+		if( startText === "" ){
+			input.value = "Missing";
+			input.style.color = "red";
+		}
 	}
-	
+
+	var endText;
+	if( output.value === 'Dropped Pin' && output.style.color == 'green' ){
+		endText = outputPin;
+	}
+	else {
+		endText = ( endPlaces && endPlaces.length > 0 ? endPlaces[0].formatted_address : output.value);
+		outputPin = null;
+		if( endText === "" ){
+			output.value = "Missing";
+			output.style.color = "red";
+		}
+	}
+
 	var formattedTime = formatTime(time.value);
 	if( formattedTime === null ){return;}
 
 	clearer();
-	resolveHeatVars(); 
+	resolveHeatVars();
 
 	/* Call the geocoder with the start and end input by user, bounding to Wilmington, get directions if responses are good */
 	geocoder.geocode({
@@ -9918,7 +9960,7 @@ function calcRoute(){
 			if( status == google.maps.GeocoderStatus.OK ){
 				geocoder.geocode({
 						'address': endText,
-						'bounds': ( !driving 
+						'bounds': ( !driving
 									? new google.maps.LatLngBounds( new google.maps.LatLng(wilBoarders.s, wilBoarders.w),
 																	new google.maps.LatLng(wilBoarders.n, wilBoarders.e) )
 									: null)
@@ -9944,7 +9986,7 @@ function calcRoute(){
  * @param startText
  * @param endText
  * @param formattedTime a military time hour of the day
- * @param checkIfOutsideWilmington {boolean} 
+ * @param checkIfOutsideWilmington {boolean}
  */
 function getDirections(startText, endText, formattedTime, checkIfOutsideWilmington){
 	request = {
@@ -9956,22 +9998,19 @@ function getDirections(startText, endText, formattedTime, checkIfOutsideWilmingt
 	};
 	directionsService.route(request, function(response, status){
 		if( status == google.maps.DirectionsStatus.OK ){
-			if( endMarker ){
-				endMarker.setMap(null);
-				endMarker = null;
-			}
 			directionCalls++;
-			
-			if( checkIfOutsideWilmington && autoRoute ){
+			if( checkIfOutsideWilmington ){
 				if( !driving ){
-					if( !isInWilmington(response.routes[0].overview_path[0], input) 
+					if( !isInWilmington(response.routes[0].overview_path[0], input)
 						 || !isInWilmington(response.routes[0].overview_path[ response.routes[0].overview_path.length - 1 ], output) ){
 						return;
 					}
 				}
-				else { // if entering or leaving Wilmington when driving, move to the edge so map isn't too zoomed out, move it back at the end
+				else if( autoRoute ){ // if entering or leaving Wilmington when driving, move to the edge so map isn't too zoomed out, move it back at the end
 					if( !isInWilmington(response.routes[0].overview_path[0])
 							&& !isInWilmington(response.routes[0].overview_path[ response.routes[0].overview_path.length - 1 ]) ){
+						outOfWil.hidden = false
+						sizing();
 						return;
 					}
 					var newPlace = whereLeaveWilmington(response.routes[0].overview_path);
@@ -9988,6 +10027,10 @@ function getDirections(startText, endText, formattedTime, checkIfOutsideWilmingt
 					}
 				}
 			}
+			if( endMarker ){
+				endMarker.setMap(null);
+				endMarker = null;
+			}
 
 			end = response.routes[0].overview_path[ response.routes[0].overview_path.length - 1 ];
 
@@ -10003,15 +10046,15 @@ function getDirections(startText, endText, formattedTime, checkIfOutsideWilmingt
 			originCoords = new xy( Math.round(originIndex.x * coordsMultiplier), Math.round(originIndex.y * coordsMultiplier) );
 			firstCoords = getCoords( getBounds(response.routes[0].overview_path[0]) );
 			lastCoords = getCoords( getBounds(end) );
-			
-			// set limit of checkerboard at top right corner of where we're looking and make crime array 
-			var arrayBounds = getBoundIndex(tempne);
+
+			// set limit of checkerboard at top right corner of where we're looking and make crime array
+			arrayBounds = getBoundIndex(tempne);
 			lngArray = new Array(arrayBounds.x + 1);
 			interArray = new Array(arrayBounds.x + 1);
 			heatArray = new Array(arrayBounds.x + 1);
 			shapeMap = new Array(arrayBounds.x + 1);
 			if(debug){console.log("array length is "+lngArray.length);console.log("y is "+arrayBounds.y);}
-			for( var i = 0, ii = lngArray.length, iii = arrayBounds.y + 1; i < ii; i++ ){ // build checkerboard of 0s for saving future crimes 
+			for( var i = 0, ii = lngArray.length, iii = arrayBounds.y + 1; i < ii; i++ ){ // build checkerboard of 0s for saving future crimes
 				lngArray[i] = new Array(iii);
 				interArray[i] = new Array(iii);
 				for( var j = 0; j < iii; j++ ){
@@ -10019,7 +10062,7 @@ function getDirections(startText, endText, formattedTime, checkIfOutsideWilmingt
 					interArray[i][j] = false;
 				}
 			}
-			for( var i = 0, ii = heatArray.length, iii = arrayBounds.y + 1; i < ii; i++ ){ // build checkerboard of 0s for heat map 
+			for( var i = 0, ii = heatArray.length, iii = arrayBounds.y + 1; i < ii; i++ ){ // build checkerboard of 0s for heat map
 				heatArray[i] = new Array(iii);
 				shapeMap[i] = new Array(iii);
 				for( var j = 0; j < iii; j++ ){
@@ -10033,7 +10076,7 @@ function getDirections(startText, endText, formattedTime, checkIfOutsideWilmingt
 			for( var i = numTime + 23; i < numTime + 25; i++ ){
 				hourShootings[i % 24].features.forEach(function(element, index, array){
 					if( element.geometry.coordinates ){
-						if( element.geometry.coordinates[0] > tempsw.lng() && element.geometry.coordinates[0] < tempne.lng() && 
+						if( element.geometry.coordinates[0] > tempsw.lng() && element.geometry.coordinates[0] < tempne.lng() &&
 							 element.geometry.coordinates[1] > tempsw.lat() && element.geometry.coordinates[1] < tempne.lat() ){
 							var tempDate = new Date(element.properties.date);
 							if( ( now - tempDate.getTime() ) / 31536000000 < crimeYears ){
@@ -10073,7 +10116,7 @@ function getDirections(startText, endText, formattedTime, checkIfOutsideWilmingt
 				if( i < (numTime + 23) % 24 || i > numTime ){
 					hourShootings[i].features.forEach(function(element, index, array){
 						if( element.geometry.coordinates ){
-							if( element.geometry.coordinates[0] > tempsw.lng() && element.geometry.coordinates[0] < tempne.lng() && 
+							if( element.geometry.coordinates[0] > tempsw.lng() && element.geometry.coordinates[0] < tempne.lng() &&
 								element.geometry.coordinates[1] > tempsw.lat() && element.geometry.coordinates[1] < tempne.lat() ){
 								var tempDate = new Date(element.properties.date);
 								if( ( now - tempDate.getTime() ) / 31536000000 < crimeYears ){
@@ -10101,8 +10144,26 @@ function getDirections(startText, endText, formattedTime, checkIfOutsideWilmingt
 function drawHeatMap(){
 	//[down,right,up,left]
 	//[right,up,left,down]
-	var directions = [ function(k,l) {return [k+1,l,heatArray[k+1][l]];}, function(k,l) {return [k,l+1,heatArray[k][l+1]];}, 
-	               function(k,l) {return [k-1,l,heatArray[k-1][l]];}, function(k,l) {return [k,l-1,heatArray[k][l-1]];} ];
+	var directions = [ function(k,l) {
+						   if( k + 1 > -1 && k + 1 <= arrayBounds.x && l > -1 && l <= arrayBounds.y ){
+							   return [k+1,l,heatArray[k+1][l]];
+						   } else {return 0;}
+	                   },
+	                   function(k,l) {
+	                	   if( k > -1 && k <= arrayBounds.x && l + 1 > -1 && l + 1 <= arrayBounds.y ){
+	                		   return [k,l+1,heatArray[k][l+1]];
+	                	   } else {return 0;}
+	                   },
+	                   function(k,l) {
+	                	   if( k - 1 > -1 && k - 1 <= arrayBounds.x && l > -1 && l <= arrayBounds.y ){
+	                		   return [k-1,l,heatArray[k-1][l]];
+	                	   } else {return 0;}
+	                   },
+	                   function(k,l) {
+	                	   if( k > -1 && k <= arrayBounds.x && l - 1 > -1 && l - 1 <= arrayBounds.y ){
+	                		   return [k,l-1,heatArray[k][l-1]];
+	                	   } else {return 0;}
+	                   } ];
 	var shapeNumber = 1;
 	var shapeArray = [];
 	heatArray.forEach(function(column, colIndex, colArray){
@@ -10122,7 +10183,6 @@ function drawHeatMap(){
 							var results = directions[a % 4](movex,movey);
 							if( results[2] > heatThreshold ){
 								movex = results[0], movey = results[1];
-								//currentShape.push( new xy(movex,movey) );
 								shapeMap[movex][movey] = shapeNumber;
 								lngArray[movex][movey] += 10;
 								a--;
@@ -10133,7 +10193,6 @@ function drawHeatMap(){
 								a++;
 							}
 						}
-						
 					}
 					var colLength = colArray.length;
 					currentShape.forEach(function(element, index, array){
@@ -10147,7 +10206,6 @@ function drawHeatMap(){
 								fillx++;
 							}
 						}
-						
 					});
 					shapeArray.push(currentShape);
 					shapeNumber++;
@@ -10194,10 +10252,10 @@ function drawHeatMap(){
 	});
 	var polyOptions = {
 		clickable: false,
-		fillColor: 'blue',
+		fillColor: 'orangered',
 		fillOpacity: 0.15,
 		map: map,
-		strokeColor: 'blue',
+		strokeColor: 'orangered',
 		strokeOpacity: 0.8,
 		strokeWeight: 2
 	};
@@ -10545,17 +10603,15 @@ function callNewRoute(doBackup, index, counter, routeSlope, savedBoxLength, i){
 					return;
 				}
 				if( directionCalls > maxDir ){
-					if( directionCalls == maxDir + 1 ){
-						if( request != bestRoute ){
-							if( driving && tripReset ){
-								return;
-							}
-							request = bestRoute;
-							directionCalls = maxDir;
-							callNewRoute(doBackup, index, counter, routeSlope, savedBoxLength, i);
-						} else if( driving && !tripReset ){
-							resetEndPoints(request);
+					if( request != bestRoute ){
+						if( driving && tripReset ){
+							return;
 						}
+						request = bestRoute;
+						directionCalls = maxDir;
+						callNewRoute(doBackup, index, counter, routeSlope, savedBoxLength, i);
+					} else if( driving && !tripReset ){
+						resetEndPoints(request);
 					}
 					return;
 				}
@@ -10935,6 +10991,7 @@ function clearer(){
 	savedEnd = null;
 	cleanedArray = [];
 	drivingTestArguments = [];
+	tripReset = false;
 }
 
 /** Draws streets of passed intersection
@@ -11788,11 +11845,15 @@ function whereLeaveWilmington(route){
 		if( starter != ender ){
 			//find where it leaves wilmington
 			var routeSlope = getRouteSlope(i);
-			routeSlope.slope.east = !routeSlope.slope.east;
-			routeSlope.slope.north = !routeSlope.slope.north;
+			var offsetOne = 0, offsetTwo = 1;
+			if( ender ) {				
+				routeSlope.slope.east = !routeSlope.slope.east;
+				routeSlope.slope.north = !routeSlope.slope.north;
+				offsetOne = 1, offsetTwo = 0;
+			}
 			var wilBox = new google.maps.LatLngBounds( new google.maps.LatLng(wilBoarders.s, wilBoarders.w),
 													   new google.maps.LatLng(wilBoarders.n, wilBoarders.e) );
-			escape = escapeCheck(myRoute[i + 1], myRoute[i], routeSlope.slope, routeSlope, wilBox, false);
+			escape = escapeCheck(myRoute[i + offsetOne], myRoute[i + offsetTwo], routeSlope.slope, routeSlope, wilBox, false);
 			var latLngToReturn;
 			if( escape ){
 				if( escape === "north" ){
@@ -11876,6 +11937,7 @@ var rends = new google.maps.DirectionsRenderer();
 /** Size of crimes when building heat map */var heatSide = 100;
 /** Index of starting point in checkerboard */var firstCoords;
 /** Index of ending point in checkerboard */var lastCoords;
+/** Stores size of crime and heat arrays */var arrayBounds;
 /** Where in waypoint array backup waypoint should be placed */var backPlace;
 /** Indexes in savedIntersecions of where backup waypoint is */var backxy;
 /** Counts calls to google directions */var directionCalls = 0;
@@ -11921,9 +11983,9 @@ var currentDate = new Date();
 /** Search box for starting place */var startBox;
 /** Search box for ending place */var endBox;
 /** User clicked destination */var endMarker;
-var input, output, time, go, locate, dirType, gMaps, helpForm, accordion, controlsOk, travelMode, reroute;
+var input, output, time, go, locate, dirType, gMaps, helpForm, form, accordion, controlsOk, travelMode, reroute, outOfWil;
 /** Size of help window */var helpWidth = 800, helpHeight = 450;
-/** True if driving, false if walking */var driving = false;
+/** True if driving, false if walking */var driving = true;
 /** Wilmington Boarders */var wilBoarders = {n: 39.78, s: 39.7, e: -75.47, w: -75.6};
 var savedStart, savedEnd, tripReset = false;
 /** How closet the best route is to the destination */var closestSaveDistance = 10000;
@@ -11931,6 +11993,8 @@ var savedStart, savedEnd, tripReset = false;
 /** Rerouting enabled? */var autoRoute = true;
 /** Time to wait between reroutes */var routeDelay = 150;
 /** For sizing */var desktop = {width:928, on:false}, tablet = {width:562, on:false}, smartphone = {width:470, on: false}, oldSmartphone = {on:false};
+/** Saved user location */var userLocation;
+/** Saved user selected pin */var outputPin;
 
 var lngMeterOffset = 8412100.2;
 var latMeterOffset = 4828611.4; //var latMeterOffset = 4855716;
@@ -11945,44 +12009,73 @@ google.maps.event.addDomListener(window, 'load', initialize);
 <script>
   $(function(){
     $( "#accordion" ).accordion({
+      activate: function(event, ui){
+        if( ui.newHeader.length !== 0 || ui.newPanel.length !== 0 ){
+          var testWidth = $(window).width() * .8, testHeight = $(window).height() * .8;
+          helpForm.style.height = ( testHeight > helpHeight ? helpHeight : testHeight ) + 'px';
+        } else {
+          form.style.height = '154px';
+        }
+      },
+   	  beforeActivate: function(event, ui){
+        if( ui.newHeader.length === 0 && ui.newPanel.length === 0 ){
+          helpForm.style.height = '154px';
+        } else {
+          var testWidth = $(window).width() * .8, testHeight = $(window).height() * .8;
+          form.style.height = ( testHeight > helpHeight ? helpHeight : testHeight ) + 'px';
+        }
+      },
+      collapsible: true,
       heightStyle: "fill"
     });
   });
 </script>
 
 <script type="text/javascript">  
+
+  function inputClick(){
+    if( input.style.color != "initial" ){
+      input.style.color = "initial";
+    }
+    if( input.value == "Not in Wilmington" || input.value == "Cannot find address" || input.value == "Missing" || input.value == "Current Location" ){
+      input.value = "";
+    }
+    increase();
+  }
+
+  function outputClick(){
+    if( output.style.color != "initial" ){
+      output.style.color = "initial";
+    }
+    if( output.value == "Not in Wilmington" || output.value == "Cannot find address" || output.value == "Missing" || output.value == "Dropped Pin" ){
+      output.value = "";
+    }
+    increase();
+  }
+  
+  function timeClick(){
+    if( time.style.color != "initial" ){
+      time.style.color = "initial";
+    }
+    if( time.value == "?" ){
+      time.value = "";
+    }
+  }
   
   function increase(){
-	if( input.style.width != "300px" ){
-	  input.style.width = "300px";
-	  output.style.width = "300px";
-	}
-	if( input.style.color != "initial" ){
-		input.style.color = "initial";
-	}
-	if( output.style.color != "initial" ){
-		output.style.color = "initial";
-	}
-	if( time.style.color != "initial" ){
-		time.style.color = "initial";
-	}
-	if( input.value == "Not in Wilmington" || input.value == "Cannot find address" || input.value == "Missing" ){
-		input.value = "";
-	}
-	if( output.value == "Not in Wilmington" || output.value == "Cannot find address" || input.value == "Missing" ){
-		output.value = "";
-	}
-	if( time.value == "?" ){
-		time.value = "";
-	}
+    if( input.style.width != "300px" ){
+      input.style.width = "300px";
+      output.style.width = "300px";
+    }
   }
 	
   function getCurrentLocation(){
 	if( navigator.geolocation ){
 	  navigator.geolocation.getCurrentPosition(function(position){
-		input.value = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-		input.value = input.value.substring( 1, input.value.length - 1 );
-		input.style.color = "initial";
+		userLocation = (new google.maps.LatLng(position.coords.latitude, position.coords.longitude)).toString();
+		userLocation = userLocation.substring( 1, userLocation.length - 1 );
+		input.value = "Current Location";
+		input.style.color = "green";
 	  });
 	}
   }
@@ -12005,6 +12098,11 @@ google.maps.event.addDomListener(window, 'load', initialize);
 	sizing();
   }
   
+  function hideMessage(){
+    outOfWil.hidden = true;
+    sizing();
+  }
+  
   function resetDefaults(){
 	document.getElementById('numOfCrimes').value = 4;
 	document.getElementById('distFromCrimes').value = 100;
@@ -12021,10 +12119,10 @@ google.maps.event.addDomListener(window, 'load', initialize);
 
 <body>
 	<div id="map_canvas"></div>
-	<input id="dirType" class="controls" type="button" value="Walking" onclick="directionSwitch()">
-	<input id="starting" class="controls" type="text" placeholder="Start" onclick="increase()">
-	<input id="ending" class="controls" type="text" placeholder="End" onclick="increase()">
-	<input id="time" class="controls" type="text" placeholder="Time" onclick="increase()">
+	<input id="dirType" class="controls" type="button" value="Driving" onclick="directionSwitch()">
+	<input id="starting" class="controls" type="text" placeholder="Start" onclick="inputClick()">
+	<input id="ending" class="controls" type="text" placeholder="End" onclick="outputClick()">
+	<input id="time" class="controls" type="text" placeholder="Time" onclick="timeClick()">
 	<input id="go" class="controls" type="button" value="Go" onclick="calcRoute()">
 	<input id="locate" class="controls" type="button" value="Locate Me" onclick="getCurrentLocation()">
 	<input id="gMaps" class="controls" type="button" value="Gmaps" onclick="getGoogleLink()">
@@ -12061,49 +12159,55 @@ google.maps.event.addDomListener(window, 'load', initialize);
 					src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAJNJREFUOI1jYaAyYCEgv52BgcERXZCdnb3v58+fVeQYKMXAwMCOLvjz509xcl1IMhhaBs7FIi+DQ58NFvVPGBgY6pENTCLBIWpQjAy+oRtIFTDCDbyERV6NgYGBA4v4OwZIrCKDh+gG6mPReJGBgUEPi/gGBgaGZEIupAoY+gb+htL/kcQYkcRJNtCECEeRZCDJAACvzxaq9xVEAQAAAABJRU5ErkJggg=="
 					width="14" height="14">Homicide</div></div></div>
 	<div id="help-form">
-		<form>
+		<form id="form">
 			<div id="accordion">
 				<h3>Summary</h3>
 				<div>
 					<p>
 						This page displays Wilmington, DE crime data overlayed on Google maps in an attempt to show a safer route when walking or driving in 
-						Wilmington. A majority of shootings in the city have taken place in certain areas and at certain times, which can be avoided.</p></div>
+						Wilmington. The sizes of the circles around the crimes show how recent they are, the orange shapes show crime hot spots. The page will 
+						try to go around the crimes for you, click <b>Auto-route</b> to stop it or turn it off and click <b>Go</b> again to adjust it 
+						yourself.</p></div>
 				<h3>Instructions</h3>
 				<div>
 					<p> Enter an origin in the <b>Start</b> textbox or press <b>Locate Me</b> to select your current position if available.</p>
 					<p> Enter a destination into the <b>End</b> textbox or "long click" on the map.</p>
-					<p> Crimes that happened close to the entered <b>Time</b> of day will be displayed. If no time is entered, the current system 
-						time is entered automatically.</p>
+					<p> Crimes that happened close to the entered <b>Time</b> of day will be displayed. If am/pm is not specified, military time is used. If 
+						no time is entered, the current system time is entered automatically.</p>
 					<p> You can pick either <b>Walking</b> or <b>Driving</b> directions, or disable <b>Auto-route</b>. Press <b>Go</b> to display a 
 						route.</p>
 					<p> The route can be modified just like in regular Google maps. Once you are satisfied with your route, you can press <b>Gmaps</b> to 
 						open a Google maps direction page or the Maps app on your phone.</p></div>
 				<h3>Map Overlays</h3>
 				<div>
-					<p> The icons shown after clicking <b>Go</b> show all crimes in the past 2 years that happened near the time of day selected. For 
-						example, if 11:15 was entered, crimes that happened between 10 and 1 are shown. A legend of the icons is displayed near the top 
+					<p> The icons shown after clicking <b>Go</b> show all crimes in the past 2 years that happened near the hour in the <b>Time</b> field. For 
+						example, if 11:15am was entered, crimes that happened between 10am and 1pm are shown. A legend of the icons is displayed near the top 
 						left.</p>
 					<p> Hover over an icon to see a quick summary of the incident. Click an icon to see additional information and a link to a report 
 						on the incident. The size of the circle gives a quick view of how recently the crime took place. Bigger circles represent more recent 
 						crimes.</p>
-					<p> The <b>Blue</b> overlay represents crime hot spots. It is suggested that if an area has more than a certain amount of crime at ANY 
-						time of the day it should always be avoided. The "heat threshold" can be modified below. Default is for a given area to display as a 
-						hot spot if it was less than 100 meters from 4 crimes that happened any time in the last 2 years.</p></div>
+					<p> The <b>Orange</b> overlay represents crime hot spots with the premise being, if an area has more than a certain amount of crime at ANY 
+						time of the day it should always be avoided. The "heat threshold" (how close and frequent crimes are to an area before they show up in 
+						orange) can be modified below. Default is for a given area to display as a hot spot if it was less than 100 meters from 4 crimes that 
+						happened any time in the last 2 years.</p></div>
 				<h3>Disclaimer & Settings</h3>
 				<div>
-					<p> The crime data shown was extracted from <a href="http://data.delawareonline.com/webapps/crime/">here</a> and goes back to 2011. The 
-						blue heatmap shows areas that have at least a certain amount of crime, but does not tell you if certain areas within a given blue 
-						section have even more crime than the threshold. The goal of the auto-rerouting is to cover the smallest distance in the blue area, 
-						but this potentially will take you through a more dangerous part of a blue section. Your best bet is to avoid the blue areas 
-						altogether.</p>
-						
-					<p>	Let's go ahead and call the rerouting "beta". It will fail miserably at times. If this happens, you can disable the automatic 
-						rerouting and drag the route as you see fit.</p>
+					<p> The crime data shown was extracted from <a href="http://data.delawareonline.com/webapps/crime/">here</a>, was updated <b>March 30, 
+						2016</b>, and goes back to 2011. The orange heatmap shows areas that have at least a certain amount of crime, but does not tell you if 
+						certain areas within a given orange section have even more crime than the threshold. The goal of the auto-rerouting is to cover the 
+						smallest distance in the orange area, but this potentially will take you through a more dangerous part of a orange section. Your best 
+						bet is to avoid the orange areas altogether.</p>
+					<p>	Let's go ahead and call the rerouting "beta". It will fail miserably at times. The difficulty of 
+						<a href="https://en.wikipedia.org/wiki/Shortest_path_problem">best route logic</a> is my excuse.</p>
 					<p> Heatmap Crime Settings</p>
 					# of: <input id="numOfCrimes" type="text" value="4" size=2 maxlength=2>&nbsp&nbsp&nbsp&nbsp
 					Meters from: <input id="distFromCrimes" type="text" value="100" size=4 maxlength=4>&nbsp&nbsp&nbsp&nbsp
 					Years since: <input id="years" type="text" value="2" size=1 maxlength=1>&nbsp&nbsp&nbsp&nbsp
 					<input id="defaults" type="button" value="Defaults" onclick="resetDefaults()"></div></div></form>
 		<input id="controlsOk" type="button" value="OK" onclick="hideHelp()"></div>
+	<div id="outOfWil" hidden=true style="text-align:center;">
+		<p>Neither the start nor the end are in Wilmington, no need to use this thing.</p>
+		<input id="messageOk" class="controls" style="margin-top: -10px;" type="button" value="OK" onclick="hideMessage()">
+	</div>
 </body>
 </html>
