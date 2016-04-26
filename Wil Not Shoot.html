@@ -9726,6 +9726,13 @@ function initialize(){
 	  endBox.setBounds( map.getBounds() );
 	});
 
+	var blur = $.Event('blur');
+	map.addListener('click', function(){
+		$('#starting').trigger(blur);
+		$('#ending').trigger(blur);
+		$('#time').trigger(blur);
+	});
+
 	startBox.addListener('places_changed', function(){
 		var places = startBox.getPlaces();
 		if( places.length > 0 ){
@@ -9743,6 +9750,10 @@ function initialize(){
 		}
 	});
 
+	$("input[type='text']").on('focus', function (){
+		$(this).select();
+	});
+
 	if( mobileAndTabletcheck() ) {
 		$(window).bind( 'orientationchange', function(){window.setTimeout(function(){sizing();}, 500);} );
 	}
@@ -9751,7 +9762,6 @@ function initialize(){
 	}
 
 	var downDate;
-
 	map.addListener('mousedown', function(){
 		downDate = new Date();
 	});
