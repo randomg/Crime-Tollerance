@@ -9683,6 +9683,29 @@ hourShootings.push({
 });
 
 function initialize(){
+	$(function(){
+		$( "#accordion" ).accordion({
+			activate: function(event, ui){
+				if( ui.newHeader.length !== 0 || ui.newPanel.length !== 0 ){
+					var testWidth = $(window).width() * .8, testHeight = $(window).height() * .8;
+					helpForm.style.height = ( testHeight > helpHeight ? helpHeight : testHeight ) + 'px';
+				} else {
+					form.style.height = '154px';
+				}
+			},
+			beforeActivate: function(event, ui){
+				if( ui.newHeader.length === 0 && ui.newPanel.length === 0 ){
+					helpForm.style.height = '154px';
+				} else {
+					var testWidth = $(window).width() * .8, testHeight = $(window).height() * .8;
+					form.style.height = ( testHeight > helpHeight ? helpHeight : testHeight ) + 'px';
+				}
+			},
+			collapsible: true,
+			heightStyle: "fill"
+		});
+	});
+	
 	geocoder = new google.maps.Geocoder();
 	var wilmington = new google.maps.LatLng(39.742305, -75.544591);
 	var mapOptions = {
@@ -12014,29 +12037,6 @@ var lngDegreeOffset = 75.567181;
 var latDegreeOffset = 39.742623;
 
 google.maps.event.addDomListener(window, 'load', initialize);
-
-  $(function(){
-    $( "#accordion" ).accordion({
-      activate: function(event, ui){
-        if( ui.newHeader.length !== 0 || ui.newPanel.length !== 0 ){
-          var testWidth = $(window).width() * .8, testHeight = $(window).height() * .8;
-          helpForm.style.height = ( testHeight > helpHeight ? helpHeight : testHeight ) + 'px';
-        } else {
-          form.style.height = '154px';
-        }
-      },
-   	  beforeActivate: function(event, ui){
-        if( ui.newHeader.length === 0 && ui.newPanel.length === 0 ){
-          helpForm.style.height = '154px';
-        } else {
-          var testWidth = $(window).width() * .8, testHeight = $(window).height() * .8;
-          form.style.height = ( testHeight > helpHeight ? helpHeight : testHeight ) + 'px';
-        }
-      },
-      collapsible: true,
-      heightStyle: "fill"
-    });
-  });
 
   function inputClick(){
     if( input.style.color != "initial" ){
