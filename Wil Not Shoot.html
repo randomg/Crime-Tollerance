@@ -9682,8 +9682,8 @@ hourShootings.push({
 	]
 });
 
-function initialize(){
-	(function(){
+function jquery(){
+	$( document ).ready(function() {
 		$( "#accordion" ).accordion({
 			activate: function(event, ui){
 				if( ui.newHeader.length !== 0 || ui.newPanel.length !== 0 ){
@@ -9703,9 +9703,31 @@ function initialize(){
 			},
 			collapsible: true,
 			heightStyle: "fill"
-		});
-	})();
+	   	});
 	
+		$("input[type='text']").on('focus', function (){
+			$(this).select();
+		});
+	
+		if( mobileAndTabletcheck() ) {
+			$(window).bind( 'orientationchange', function(){window.setTimeout(function(){sizing();}, 500);} );
+		}
+		else {
+			$(window).resize(sizing);
+		}
+	
+		var blur = $.Event('blur');
+		map.addListener('click', function(){
+			$('#starting').trigger(blur);
+			$('#ending').trigger(blur);
+			$('#time').trigger(blur);
+		});
+	});
+	
+	sizing(true);
+}
+
+function initialize(){
 	geocoder = new google.maps.Geocoder();
 	var wilmington = new google.maps.LatLng(39.742305, -75.544591);
 	var mapOptions = {
@@ -9745,15 +9767,8 @@ function initialize(){
 
 	// Bias the SearchBox results towards current map's viewport.
 	map.addListener('bounds_changed', function(){
-	  startBox.setBounds( map.getBounds() );
-	  endBox.setBounds( map.getBounds() );
-	});
-
-	var blur = $.Event('blur');
-	map.addListener('click', function(){
-		$('#starting').trigger(blur);
-		$('#ending').trigger(blur);
-		$('#time').trigger(blur);
+		startBox.setBounds( map.getBounds() );
+		endBox.setBounds( map.getBounds() );
 	});
 
 	startBox.addListener('places_changed', function(){
@@ -9772,17 +9787,6 @@ function initialize(){
 			endMarker = null;
 		}
 	});
-
-	$("input[type='text']").on('focus', function (){
-		$(this).select();
-	});
-
-	if( mobileAndTabletcheck() ) {
-		$(window).bind( 'orientationchange', function(){window.setTimeout(function(){sizing();}, 500);} );
-	}
-	else {
-		$(window).resize(sizing);
-	}
 
 	var downDate;
 	map.addListener('mousedown', function(){
@@ -9805,8 +9809,8 @@ function initialize(){
 	});
 
 	travelMode = ( driving ? google.maps.TravelMode.DRIVING : google.maps.TravelMode.WALKING );
-
-	sizing(true);
+	
+	jquery();
 }
 
 function mobileAndTabletcheck(){
