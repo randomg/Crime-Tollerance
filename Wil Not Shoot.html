@@ -9683,7 +9683,7 @@ hourShootings.push({
 });
 
 function initialize(){
-	$(function(){
+	(function(){
 		$( "#accordion" ).accordion({
 			activate: function(event, ui){
 				if( ui.newHeader.length !== 0 || ui.newPanel.length !== 0 ){
@@ -9704,7 +9704,7 @@ function initialize(){
 			collapsible: true,
 			heightStyle: "fill"
 		});
-	});
+	})();
 	
 	geocoder = new google.maps.Geocoder();
 	var wilmington = new google.maps.LatLng(39.742305, -75.544591);
