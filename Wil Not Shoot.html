@@ -9771,6 +9771,13 @@ function initialize(){
 		endBox.setBounds( map.getBounds() );
 	});
 
+	var blur = $.Event('blur');
+	map.addListener('click', function(){
+		$('#starting').trigger(blur);
+		$('#ending').trigger(blur);
+		$('#time').trigger(blur);
+	});
+
 	startBox.addListener('places_changed', function(){
 		var places = startBox.getPlaces();
 		if( places.length > 0 ){
@@ -9787,6 +9794,17 @@ function initialize(){
 			endMarker = null;
 		}
 	});
+
+	$("input[type='text']").on('focus', function (){
+		$(this).select();
+	});
+
+	if( mobileAndTabletcheck() ) {
+		$(window).bind( 'orientationchange', function(){window.setTimeout(function(){sizing();}, 500);} );
+	}
+	else {
+		$(window).resize(sizing);
+	}
 
 	var downDate;
 	map.addListener('mousedown', function(){
@@ -9809,8 +9827,8 @@ function initialize(){
 	});
 
 	travelMode = ( driving ? google.maps.TravelMode.DRIVING : google.maps.TravelMode.WALKING );
-	
-	jquery();
+
+	sizing(true);
 }
 
 function mobileAndTabletcheck(){
@@ -10775,7 +10793,7 @@ function getIntersection(box, index, routeSlope, sideStep, counter, savedBoxLeng
 		var section = [];
 		$.ajax({
 			dataType: "json",
-			url: "http://firstmap.gis.delaware.gov/arcgis/rest/services/Transportation/DE_Centerline/FeatureServer/0/query?geometry=" 
+			url: "https://firstmap.gis.delaware.gov/arcgis/rest/services/Transportation/DE_Centerline/FeatureServer/0/query?geometry=" 
 				 + swMeters.x + "%2C" + swMeters.y + "%2C" + neMeters.x + "%2C" + neMeters.y
 				 + "&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&objectIds=&where=&time=&returnCountOnly=false&returnIdsOnly=false&returnGeometry=true&maxAllowableOffset=&outSR=&outFields=OBJECTID%2CSTREET_NAME&f=pjson",
 			success: function(data) {
@@ -11484,7 +11502,7 @@ function placeRoute(location){
 		colorIndex = 0;
 	}
 	var pointer = new google.maps.Point(9, 9);
-	var markerUrl = 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + wayCounter + '|' + colors[colorIndex];
+	var markerUrl = 'https://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=' + wayCounter + '|' + colors[colorIndex];
 	location.forEach(function(wayPoint){
 		var foundMarker = false;
 		for( var j = 0, jj = routesArray.length; j < jj; j++ ){
@@ -12041,6 +12059,34 @@ var lngDegreeOffset = 75.567181;
 var latDegreeOffset = 39.742623;
 
 google.maps.event.addDomListener(window, 'load', initialize);
+</script>
+
+<script>
+  $(function(){
+    $( "#accordion" ).accordion({
+      activate: function(event, ui){
+        if( ui.newHeader.length !== 0 || ui.newPanel.length !== 0 ){
+          var testWidth = $(window).width() * .8, testHeight = $(window).height() * .8;
+          helpForm.style.height = ( testHeight > helpHeight ? helpHeight : testHeight ) + 'px';
+        } else {
+          form.style.height = '154px';
+        }
+      },
+   	  beforeActivate: function(event, ui){
+        if( ui.newHeader.length === 0 && ui.newPanel.length === 0 ){
+          helpForm.style.height = '154px';
+        } else {
+          var testWidth = $(window).width() * .8, testHeight = $(window).height() * .8;
+          form.style.height = ( testHeight > helpHeight ? helpHeight : testHeight ) + 'px';
+        }
+      },
+      collapsible: true,
+      heightStyle: "fill"
+    });
+  });
+</script>
+
+<script type="text/javascript">  
 
   function inputClick(){
     if( input.style.color != "initial" ){
