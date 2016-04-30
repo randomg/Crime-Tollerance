@@ -10543,7 +10543,7 @@ function testIntersection(index, counter, routeSlope, savedBoxLength, forResume)
 					drivingTestArguments = [];
 					var newRouteArgs = [false]; 
 					var j = 0;
-					while( arguments[j] ){
+					while( arguments[j] !== undefined ){
 						drivingTestArguments.push(arguments[j]);
 						newRouteArgs.push(arguments[j]);
 						j++;
